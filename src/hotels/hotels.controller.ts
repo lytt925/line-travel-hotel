@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateHotelDto } from './dto/create-hotel.dto';
 import { UpdateHotelDto } from './dto/update-hotel.dto';
 import { CsvError } from 'csv-parse';
+import { formatSucessResponse } from 'src/common/presenters/response.presenter';
 
 @Controller('hotels')
 export class HotelsController {
@@ -26,11 +27,13 @@ export class HotelsController {
 
   @Get()
   async findAll() {
-    return await this.hotelsService.findAll();
+    const hotels = await this.hotelsService.findAll();
+    return formatSucessResponse('Hotels found successfully', hotels);
   }
   @Post()
   async create(@Body() createHotelDto: CreateHotelDto) {
-    return await this.hotelsService.create(createHotelDto);
+    const hotel = await this.hotelsService.create(createHotelDto);
+    return formatSucessResponse('Hotel created successfully', hotel);
   }
 
   @Post('import')
@@ -51,7 +54,16 @@ export class HotelsController {
     file: Express.Multer.File,
   ) {
     try {
-      return await this.hotelsService.importFromFile(file);
+      const importResults = await this.hotelsService.importFromFile(file);
+      if (importResults.errorRecords.length > 0)
+        return formatSucessResponse(
+          'Hotels imported with errors',
+          importResults,
+        );
+      return formatSucessResponse(
+        'Hotels imported successfully',
+        importResults,
+      );
     } catch (error) {
       if (error instanceof CsvError) {
         throw new BadRequestException(error.message);
@@ -67,7 +79,7 @@ export class HotelsController {
     if (!hotel) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return { data: hotel };
+    return formatSucessResponse('Hotel found successfully', hotel);
   }
 
   @Patch(':id')
@@ -79,7 +91,7 @@ export class HotelsController {
     if (!hotel) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return { data: hotel };
+    return formatSucessResponse('Hotel updated successfully', hotel);
   }
 
   @Delete(':id')
@@ -88,6 +100,6 @@ export class HotelsController {
     if (!result) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return 'Hotel removed successfully';
+    return formatSucessResponse('Hotel removed successfully');
   }
 }
