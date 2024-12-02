@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
-import { CreateHotelDto } from '../dto/create-hotel.dto';
+import { CreateHotelDto } from '../dto/requests/create-hotel.dto';
 
 export async function mapRecordToCreateHotelDto(
   record: Record<string, string>,

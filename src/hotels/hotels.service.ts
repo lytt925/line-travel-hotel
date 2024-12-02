@@ -2,15 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Hotel } from './entities/hotel.entity';
-import { CreateHotelDto } from './dto/create-hotel.dto';
-import { UpdateHotelDto } from './dto/update-hotel.dto';
+import { CreateHotelDto } from './dto/requests/create-hotel.dto';
+import { UpdateHotelDto } from './dto/requests/update-hotel.dto';
 import { merge } from 'lodash';
 import { CsvParserService } from '../common/utils/csv-parser/csv-parser.service';
-import { mapCreateHotelDtoToEntity } from './mappers/hotel.mapper';
+import {
+  mapCreateHotelDtoToEntity,
+  mapEntityToCreateHotelDto,
+} from './mappers/hotel.mapper';
 import { mapRecordToCreateHotelDto } from './mappers/dto.mapper';
 import { ValidationError } from 'class-validator';
 import { ImportResult } from './types/hotel.service.type';
-import { mapEntityToCreateHotelDto } from './mappers/hotel-to-dto.mapper';
 
 @Injectable()
 export class HotelsService {

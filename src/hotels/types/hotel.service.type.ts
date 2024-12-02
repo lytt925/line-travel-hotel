@@ -1,4 +1,4 @@
-import { CreateHotelDto } from '../dto/create-hotel.dto';
+import { CreateHotelDto } from '../dto/requests/create-hotel.dto';
 
 export interface ImportError {
   recordIndex: number;

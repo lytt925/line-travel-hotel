@@ -16,11 +16,21 @@ import {
 } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateHotelDto } from './dto/create-hotel.dto';
-import { UpdateHotelDto } from './dto/update-hotel.dto';
+import { CreateHotelDto } from './dto/requests/create-hotel.dto';
+import { UpdateHotelDto } from './dto/requests/update-hotel.dto';
 import { CsvError } from 'csv-parse';
 import { formatSucessResponse } from 'src/common/presenters/response.presenter';
+import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreate,
+  ApiDelete,
+  ApiGetAll,
+  ApiGetById,
+  ApiImportFromCsv,
+  ApiUpdate,
+} from './decorators/docs.decorators';
 
+@ApiTags('hotels')
 @Controller({
   path: 'hotels',
   version: '1',
@@ -28,18 +38,31 @@ import { formatSucessResponse } from 'src/common/presenters/response.presenter';
 export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
+  @Get(':id')
+  @ApiGetById()
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const hotel = await this.hotelsService.findOne(id);
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${id} not found`);
+    }
+    return formatSucessResponse('Hotel found successfully', hotel);
+  }
+
   @Get()
+  @ApiGetAll()
   async findAll() {
     const hotels = await this.hotelsService.findAll();
     return formatSucessResponse('Hotels found successfully', hotels);
   }
   @Post()
+  @ApiCreate()
   async create(@Body() createHotelDto: CreateHotelDto) {
     const hotel = await this.hotelsService.create(createHotelDto);
     return formatSucessResponse('Hotel created successfully', hotel);
   }
 
   @Post('import/csv')
+  @ApiImportFromCsv()
   @UseInterceptors(FileInterceptor('file'))
   async importFromFile(
     @UploadedFile(
@@ -76,16 +99,8 @@ export class HotelsController {
     }
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const hotel = await this.hotelsService.findOne(id);
-    if (!hotel) {
-      throw new NotFoundException(`Hotel with ID ${id} not found`);
-    }
-    return formatSucessResponse('Hotel found successfully', hotel);
-  }
-
   @Patch(':id')
+  @ApiUpdate()
   async update(
     @Param('id') id: number,
     @Body() updateHotelDto: UpdateHotelDto,
@@ -98,6 +113,7 @@ export class HotelsController {
   }
 
   @Delete(':id')
+  @ApiDelete()
   async remove(@Param('id') id: number) {
     const result = await this.hotelsService.remove(id);
     if (!result) {
