@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Hotel } from './entities/hotel.entity';
-import { CreateHotelDto } from './dto/requests/create-hotel.dto';
-import { UpdateHotelDto } from './dto/requests/update-hotel.dto';
+import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
+import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
 import { merge } from 'lodash';
 import { CsvParserService } from '../common/utils/csv-parser/csv-parser.service';
 import {

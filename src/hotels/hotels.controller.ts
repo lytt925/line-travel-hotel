@@ -16,8 +16,8 @@ import {
 } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateHotelDto } from './dto/requests/create-hotel.dto';
-import { UpdateHotelDto } from './dto/requests/update-hotel.dto';
+import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
+import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
 import { CsvError } from 'csv-parse';
 import { formatSucessResponse } from 'src/common/presenters/response.presenter';
 import { ApiTags } from '@nestjs/swagger';

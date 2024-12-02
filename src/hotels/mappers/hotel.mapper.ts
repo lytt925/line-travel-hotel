@@ -1,4 +1,4 @@
-import { CreateHotelDto } from '../dto/requests/create-hotel.dto';
+import { CreateHotelDto } from '../dtos/requests/create-hotel.dto';
 import { Hotel } from '../entities/hotel.entity';
 
 export const mapCreateHotelDtoToEntity = (dto: CreateHotelDto): Hotel => {

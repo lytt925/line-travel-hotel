@@ -14,13 +14,13 @@ import {
   GetByIdResponseDto,
   ImportResponseDto,
   UpdateResponseDto,
-} from '../dto/responses/responses.dto';
+} from '../dtos/responses/responses.dto';
 import {
   BadRequestException,
   NotFoundException,
 } from '../../common/docs/base.error';
-import { UpdateHotelDto } from '../dto/requests/update-hotel.dto';
-import { CreateHotelDto } from '../dto/requests/create-hotel.dto';
+import { UpdateHotelDto } from '../dtos/requests/update-hotel.dto';
+import { CreateHotelDto } from '../dtos/requests/create-hotel.dto';
 
 export function ApiGetById() {
   return applyDecorators(
