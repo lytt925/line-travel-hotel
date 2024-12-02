@@ -21,7 +21,10 @@ import { UpdateHotelDto } from './dto/update-hotel.dto';
 import { CsvError } from 'csv-parse';
 import { formatSucessResponse } from 'src/common/presenters/response.presenter';
 
-@Controller('hotels')
+@Controller({
+  path: 'hotels',
+  version: '1',
+})
 export class HotelsController {
   constructor(private readonly hotelsService: HotelsService) {}
 
@@ -36,7 +39,7 @@ export class HotelsController {
     return formatSucessResponse('Hotel created successfully', hotel);
   }
 
-  @Post('import')
+  @Post('import/csv')
   @UseInterceptors(FileInterceptor('file'))
   async importFromFile(
     @UploadedFile(
