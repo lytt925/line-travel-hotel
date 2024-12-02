@@ -90,11 +90,11 @@ export class HotelsController {
     @Param('id') id: number,
     @Body() updateHotelDto: UpdateHotelDto,
   ) {
-    const hotel = await this.hotelsService.update(id, updateHotelDto);
-    if (!hotel) {
+    const result = await this.hotelsService.update(id, updateHotelDto);
+    if (!result) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return formatSucessResponse('Hotel updated successfully', hotel);
+    return formatSucessResponse('Hotel updated successfully');
   }
 
   @Delete(':id')

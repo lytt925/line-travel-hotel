@@ -10,6 +10,7 @@ import { mapCreateHotelDtoToEntity } from './mappers/hotel.mapper';
 import { mapRecordToCreateHotelDto } from './mappers/dto.mapper';
 import { ValidationError } from 'class-validator';
 import { ImportResult } from './types/hotel.service.type';
+import { mapEntityToCreateHotelDto } from './mappers/hotel-to-dto.mapper';
 
 @Injectable()
 export class HotelsService {
@@ -67,9 +68,11 @@ export class HotelsService {
     if (!hotel) {
       return null;
     }
-
-    const updatedHotel = merge(hotel, updateHotelDto);
-    return await this.hotelsRepository.save(updatedHotel);
+    const transformedHotel = mapEntityToCreateHotelDto(hotel);
+    const updatedHotel = merge(transformedHotel, updateHotelDto);
+    const updatedEntity = mapCreateHotelDtoToEntity(updatedHotel);
+    const result = await this.hotelsRepository.update({ id }, updatedEntity);
+    return result.affected === 1;
   }
 
   async remove(id: number) {
