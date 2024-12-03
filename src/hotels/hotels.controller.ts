@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
 import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
 import { CsvError } from 'csv-parse';
-import { formatSucessResponse } from 'src/common/presenters/response.presenter';
+import { ResponsePresenter } from '../common/presenters/response.presenter';
 import { ApiTags } from '@nestjs/swagger';
 import {
   ApiCreate,
@@ -36,7 +36,10 @@ import {
   version: '1',
 })
 export class HotelsController {
-  constructor(private readonly hotelsService: HotelsService) {}
+  constructor(
+    private readonly hotelsService: HotelsService,
+    private readonly responsePresenter: ResponsePresenter,
+  ) {}
 
   @Get(':id')
   @ApiGetById()
@@ -45,20 +48,29 @@ export class HotelsController {
     if (!hotel) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return formatSucessResponse('Hotel found successfully', hotel);
+    return this.responsePresenter.formatSuccessResponse(
+      'Hotel found successfully',
+      hotel,
+    );
   }
 
   @Get()
   @ApiGetAll()
   async findAll() {
     const hotels = await this.hotelsService.findAll();
-    return formatSucessResponse('Hotels found successfully', hotels);
+    return this.responsePresenter.formatSuccessResponse(
+      'Hotels found successfully',
+      hotels,
+    );
   }
   @Post()
   @ApiCreate()
   async create(@Body() createHotelDto: CreateHotelDto) {
     const hotel = await this.hotelsService.create(createHotelDto);
-    return formatSucessResponse('Hotel created successfully', hotel);
+    return this.responsePresenter.formatSuccessResponse(
+      'Hotel created successfully',
+      hotel,
+    );
   }
 
   @Post('import/csv')
@@ -82,11 +94,11 @@ export class HotelsController {
     try {
       const importResults = await this.hotelsService.importFromFile(file);
       if (importResults.errorRecords.length > 0)
-        return formatSucessResponse(
+        return this.responsePresenter.formatSuccessResponse(
           'Hotels imported with errors',
           importResults,
         );
-      return formatSucessResponse(
+      return this.responsePresenter.formatSuccessResponse(
         'Hotels imported successfully',
         importResults,
       );
@@ -109,7 +121,9 @@ export class HotelsController {
     if (!result) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return formatSucessResponse('Hotel updated successfully');
+    return this.responsePresenter.formatSuccessResponse(
+      'Hotel updated successfully',
+    );
   }
 
   @Delete(':id')
@@ -119,6 +133,8 @@ export class HotelsController {
     if (!result) {
       throw new NotFoundException(`Hotel with ID ${id} not found`);
     }
-    return formatSucessResponse('Hotel removed successfully');
+    return this.responsePresenter.formatSuccessResponse(
+      'Hotel removed successfully',
+    );
   }
 }
