@@ -1,7 +1,7 @@
 import { OmitType } from '@nestjs/swagger';
-import { BaseResponseDto } from 'src/common/dtos/base-response.dto';
-import { Hotel } from 'src/hotels/entities/hotel.entity';
-import { ImportResult } from 'src/hotels/types/hotel.service.type';
+import { BaseResponseDto } from '../../../common/dtos/base-response.dto';
+import { Hotel } from '../../../hotels/entities/hotel.entity';
+import { ImportResult } from '../../../hotels/types/hotel.service.type';
 
 export class GetByIdResponseDto extends BaseResponseDto<Hotel> {}
 export class GetAllResponseDto extends BaseResponseDto<Hotel[]> {}

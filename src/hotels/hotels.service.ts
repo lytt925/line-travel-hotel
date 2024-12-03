@@ -22,31 +22,35 @@ export class HotelsService {
     private csvParser: CsvParserService,
   ) {}
 
-  async findAll() {
+  async findAll(): Promise<Hotel[]> {
     return await this.hotelsRepository.find();
   }
 
-  async create(createHotelDto: CreateHotelDto) {
+  async create(createHotelDto: CreateHotelDto): Promise<Hotel> {
     const hotel = this.hotelsRepository.create(
       mapCreateHotelDtoToEntity(createHotelDto),
     );
     return await this.hotelsRepository.save(hotel);
   }
 
-  async importFromFile(file: Express.Multer.File) {
+  async importFromFile(file: Express.Multer.File): Promise<ImportResult> {
     const records = await this.csvParser.parseCsvFromBuffer(file.buffer);
-    const importResults: ImportResult = {
-      hotels: [],
+    const hotelsToInsert = [];
+    const importResult: ImportResult = {
+      successRecords: [],
       errorRecords: [],
     };
 
     const mappingPromises = records.map(async (record, index) => {
       try {
         const hotel = await mapRecordToCreateHotelDto(record);
-        importResults.hotels.push(hotel);
+        hotelsToInsert.push(hotel);
+        importResult.successRecords.push({
+          row: index + 1,
+        });
       } catch (error) {
-        importResults.errorRecords.push({
-          recordIndex: index + 1,
+        importResult.errorRecords.push({
+          row: index + 1,
           errors: error.map((e: ValidationError) =>
             Object.values(e.constraints).join('; '),
           ),
@@ -56,16 +60,16 @@ export class HotelsService {
 
     await Promise.all(mappingPromises);
     await this.hotelsRepository.insert(
-      importResults.hotels.map((h) => mapCreateHotelDtoToEntity(h)),
+      hotelsToInsert.map((h) => mapCreateHotelDtoToEntity(h)),
     );
-    return importResults;
+    return importResult;
   }
 
   async findOne(id: number): Promise<Hotel | null> {
     return await this.hotelsRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateHotelDto: UpdateHotelDto) {
+  async update(id: number, updateHotelDto: UpdateHotelDto): Promise<boolean> {
     const hotel = await this.findOne(id);
     if (!hotel) {
       return null;
@@ -77,7 +81,7 @@ export class HotelsService {
     return result.affected === 1;
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<boolean> {
     const result = await this.hotelsRepository.delete({ id });
     return result.affected === 1;
   }

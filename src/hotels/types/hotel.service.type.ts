@@ -1,11 +1,13 @@
-import { CreateHotelDto } from '../dtos/requests/create-hotel.dto';
-
 export interface ImportError {
-  recordIndex: number;
+  row: number;
   errors: string[];
 }
 
+export interface ImportRecord {
+  row: number;
+}
+
 export interface ImportResult {
-  hotels: CreateHotelDto[];
+  successRecords: ImportRecord[];
   errorRecords: ImportError[];
 }
