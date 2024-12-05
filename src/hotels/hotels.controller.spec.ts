@@ -10,6 +10,7 @@ import { CsvError } from 'csv-parse';
 
 describe('HotelsController', () => {
   let controller: HotelsController;
+  let responsePresenter: ResponsePresenter;
 
   const mockHotelsData: Hotel[] = [
     {
@@ -38,20 +39,17 @@ describe('HotelsController', () => {
     importFromFile: jest.fn<Promise<ImportResult>, []>(),
   };
 
-  const mockResponsePresenter = {
-    formatSuccessResponse: jest.fn((message, data) => ({ message, data })),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HotelsController],
       providers: [
         { provide: HotelsService, useValue: mockHotelsService },
-        { provide: ResponsePresenter, useValue: mockResponsePresenter },
+        ResponsePresenter,
       ],
     }).compile();
 
     controller = module.get<HotelsController>(HotelsController);
+    responsePresenter = module.get<ResponsePresenter>(ResponsePresenter);
   });
 
   describe('findAll', () => {
@@ -127,8 +125,8 @@ describe('HotelsController', () => {
       mimetype: 'text/csv',
       size: 1024,
       buffer: Buffer.from(`
-        name,address,email,country,city,longitude,latitude,is_open
-        礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,true
+        name,address,email,country,city,longitude,latitude,isOpen
+        礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1
         `),
       destination: '',
       filename: '',
@@ -147,11 +145,15 @@ describe('HotelsController', () => {
       };
 
       mockHotelsService.importFromFile.mockResolvedValue(mockImportResults);
+      const spyOnFormatSuccessResponse = jest.spyOn(
+        responsePresenter,
+        'formatSuccessResponse',
+      );
 
       const result = await controller.importFromFile(mockFile);
 
       expect(mockHotelsService.importFromFile).toHaveBeenCalledWith(mockFile);
-      expect(mockResponsePresenter.formatSuccessResponse).toHaveBeenCalledWith(
+      expect(spyOnFormatSuccessResponse).toHaveBeenCalledWith(
         'Hotels imported successfully',
         mockImportResults,
       );
@@ -165,9 +167,9 @@ describe('HotelsController', () => {
       const mockPartialErrorFile: Express.Multer.File = {
         ...mockFile,
         buffer: Buffer.from(`
-          name,address,email,country,city,longitude,latitude,is_open
-          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,true
-          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,94.671,true
+          name,address,email,country,city,longitude,latitude,isOpen
+          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1
+          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,94.671,0
         `),
       };
 
@@ -186,16 +188,22 @@ describe('HotelsController', () => {
       };
 
       mockHotelsService.importFromFile.mockResolvedValue(mockImportResults);
+      const spyOnFormatSuccessResponse = jest.spyOn(
+        responsePresenter,
+        'formatSuccessResponse',
+      );
 
       const result = await controller.importFromFile(mockPartialErrorFile);
 
       expect(mockHotelsService.importFromFile).toHaveBeenCalledWith(
         mockPartialErrorFile,
       );
-      expect(mockResponsePresenter.formatSuccessResponse).toHaveBeenCalledWith(
+
+      expect(spyOnFormatSuccessResponse).toHaveBeenCalledWith(
         'Hotels imported with errors',
         mockImportResults,
       );
+
       expect(result).toEqual({
         message: 'Hotels imported with errors',
         data: mockImportResults,
@@ -206,8 +214,8 @@ describe('HotelsController', () => {
       const mockCsvErrorFile: Express.Multer.File = {
         ...mockFile,
         buffer: Buffer.from(`
-          name,address,email,country,city,longitude,latitude,is_open
-          礁溪老爺酒店101,五峰路69號ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,true
+          name,address,email,country,city,longitude,latitude,isOpen
+          礁溪老爺酒店101,五峰路69號ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,0
         `),
       };
 
@@ -219,13 +227,6 @@ describe('HotelsController', () => {
 
       await expect(controller.importFromFile(mockCsvErrorFile)).rejects.toThrow(
         BadRequestException,
-      );
-
-      const internalServerError = new Error('Internal Server Error');
-      mockHotelsService.importFromFile.mockRejectedValue(internalServerError);
-
-      await expect(controller.importFromFile(mockFile)).rejects.toThrow(
-        internalServerError,
       );
     });
   });

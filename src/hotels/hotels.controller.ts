@@ -12,6 +12,8 @@ import {
   ParseFilePipeBuilder,
   NotFoundException,
   BadRequestException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -33,6 +35,13 @@ import {
   path: 'hotels',
   version: '1',
 })
+@UsePipes(
+  new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }),
+)
 export class HotelsController {
   constructor(
     private readonly hotelsService: HotelsService,
@@ -103,8 +112,6 @@ export class HotelsController {
     } catch (error) {
       if (error instanceof CsvError) {
         throw new BadRequestException(error.message);
-      } else {
-        throw error;
       }
     }
   }

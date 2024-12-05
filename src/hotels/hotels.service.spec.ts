@@ -84,23 +84,24 @@ describe('HotelsService', () => {
   });
 
   describe('importFromFile', () => {
-    it('should process the file and import hotels', async () => {
+    it('should give error imports', async () => {
       const mockFile = {
         buffer: Buffer.from(`
           name,address,email,country,city,longitude,latitude,isOpen,webLink
-          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,0,
-          礁溪老爺酒店102,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,24.671,1,https://hotel.com
+          礁溪老爺酒店101,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,94.671,0,
+          礁溪老爺酒店102,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,24.671,true,https://hotel.com
+          礁溪老爺酒店101,五峰路69號,yt@gami.com,台灣,宜蘭,12.776,24.671,0,https://hotel.com
         `),
       } as Express.Multer.File;
       const mockRecords: Record<string, string>[] = [
         {
           name: '礁溪老爺酒店101',
           address: '五峰路69號',
-          email: 'ytlit.wt@gami.com',
+          email: 'https://fake-hotels.com',
           country: '台灣',
           city: '宜蘭',
           longitude: '121.776',
-          latitude: '24.671',
+          latitude: '94.671',
           isOpen: '0',
           webLink: '',
         },
@@ -108,6 +109,17 @@ describe('HotelsService', () => {
           name: '礁溪老爺酒店102',
           address: '五峰路69號',
           email: 'https://fake-hotels.com',
+          country: '台灣',
+          city: '宜蘭',
+          longitude: '121.776',
+          latitude: '94.671',
+          isOpen: 'true',
+          webLink: 'https://hotel.com',
+        },
+        {
+          name: '礁溪老爺酒店103',
+          address: '五峰路69號',
+          email: 'yt@gami.com',
           country: '台灣',
           city: '宜蘭',
           longitude: '121.776',
@@ -122,7 +134,7 @@ describe('HotelsService', () => {
 
       const result = await service.importFromFile(mockFile);
       expect(result.successRecords.length).toBe(1);
-      expect(result.errorRecords.length).toBe(1);
+      expect(result.errorRecords.length).toBe(2);
       expect(csvParser.parseCsvFromBuffer).toHaveBeenCalledWith(
         mockFile.buffer,
       );

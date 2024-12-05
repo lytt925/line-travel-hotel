@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { VersioningType } from '@nestjs/common';
-import { ValidationPipe } from '@nestjs/common';
 import { hotelSeedData } from './seeds/data/hotels';
 
 describe('End to end testing for hotel routes', () => {
@@ -15,13 +14,6 @@ describe('End to end testing for hotel routes', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
-      }),
-    );
     app.setGlobalPrefix('api');
     app.enableVersioning({
       type: VersioningType.URI,
@@ -47,6 +39,19 @@ describe('End to end testing for hotel routes', () => {
           id: validHotelId,
           ...hotelSeedData[validHotelId - 1],
         },
+      });
+    });
+
+    it('should return 404 for invalid ID', async () => {
+      const invalidHotelId = 999;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/hotels/${invalidHotelId}`)
+        .expect(404);
+
+      expect(response.body).toEqual({
+        statusCode: 404,
+        error: 'Not Found',
+        message: `Hotel with ID ${invalidHotelId} not found`,
       });
     });
   });
@@ -166,7 +171,7 @@ describe('End to end testing for hotel routes', () => {
     it('should handle partial errors in the CSV file', async () => {
       const mockCsvWithErrors = `name,address,email,country,city,longitude,latitude,isOpen,webLink
         礁溪老爺酒店2,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,
-        礁溪老爺酒店3,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,
+        礁溪老爺酒店3,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,wrong,
         礁溪老爺酒店3,,ytlit.wt@gami.com,台灣,宜蘭,12.776,94.671,1,
         礁溪老爺酒店4,五峰路69號,ytlit.wt@gami.com,台灣,,12.776,24.671,0,
         礁溪老爺酒店4,五峰路69號,ytlit.wt@gami.com,,宜蘭,12.776,24.671,0,
@@ -210,6 +215,46 @@ describe('End to end testing for hotel routes', () => {
         statusCode: 400,
         message: expect.any(String),
         error: 'Bad Request',
+      });
+    });
+  });
+
+  describe('PATCH /api/v1/hotels/:id', () => {
+    const updatedHotel = {
+      name: 'Updated Hotel Name',
+      webLink: 'https://updated-hotel.com',
+      country: 'Updated Country',
+      city: 'Updated City',
+      address: 'Updated Address',
+      email: 'ytli.w@gmail.com',
+      isOpen: false,
+      longitude: '121.776',
+      latitude: '24.671',
+    };
+    it('should update a hotel successfully', async () => {
+      const hotelIdToUpdate = 1;
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/hotels/${hotelIdToUpdate}`)
+        .send(updatedHotel)
+        .expect(200);
+
+      expect(response.body).toEqual({
+        statusCode: 200,
+        message: 'Hotel updated successfully',
+      });
+    });
+
+    it('should return 404 for invalid input', async () => {
+      const hotelIdToUpdate = 999;
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/hotels/${hotelIdToUpdate}`)
+        .send(updatedHotel)
+        .expect(404);
+
+      expect(response.body).toEqual({
+        statusCode: 404,
+        error: 'Not Found',
+        message: `Hotel with ID ${hotelIdToUpdate} not found`,
       });
     });
   });
