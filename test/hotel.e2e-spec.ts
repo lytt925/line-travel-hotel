@@ -246,26 +246,26 @@ describe('End to end testing for hotel routes', () => {
       });
     });
 
-    // it('should handle webLink correctly', async () => {
-    //   const checkWebLinkCsv = `name,address,email,country,city,longitude,latitude,isOpen
-    //     礁溪老爺酒店1,五峰路69號,hello@email.com,台灣,宜蘭,121.776,24.671,0,
-    //     礁溪老爺酒店3,五峰路69號,hello@email.com,台灣,宜蘭,121.776,24.671,0,https://www.hotelroyal.com.tw`;
+    it('should handle webLink correctly', async () => {
+      const checkWebLinkCsv = `name,address,email,country,city,longitude,latitude,isOpen,webLink
+礁溪老爺酒店1,五峰路69號,hello@email.com,台灣,宜蘭,121.776,24.671,0,
+礁溪老爺酒店2,五峰路69號,hello@email.com,台灣,宜蘭,121.776,24.671,1,https://www.hotelroyal.com.tw`;
 
-    //   const response = await request(app.getHttpServer())
-    //     .post('/api/v1/hotels/import/csv')
-    //     .set('Content-Type', 'multipart/form-data')
-    //     .attach('file', Buffer.from(checkWebLinkCsv), 'checkWebLink.csv')
-    //     .expect(201);
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/hotels/import/csv')
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', Buffer.from(checkWebLinkCsv), 'checkWebLink.csv')
+        .expect(201);
 
-    //   expect(response.body).toEqual({
-    //     statusCode: 201,
-    //     message: 'Hotels imported successfully',
-    //     data: {
-    //       successRecords: expect.arrayContaining([{ row: 3 }, { row: 4 }]),
-    //       errorRecords: [],
-    //     },
-    //   });
-    // });
+      expect(response.body).toEqual({
+        statusCode: 201,
+        message: 'Hotels imported successfully',
+        data: {
+          successRecords: expect.arrayContaining([{ row: 1 }, { row: 2 }]),
+          errorRecords: [],
+        },
+      });
+    });
 
     it('should handle empty file', async () => {
       const response = await request(app.getHttpServer())
