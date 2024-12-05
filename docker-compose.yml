@@ -1,0 +1,34 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: hotel_db_${NODE_ENV}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - ${MYSQL_PORT}:3306
+    volumes:
+      - hotel_db_data:/var/lib/mysql
+    profiles:
+      - development
+      - production
+
+  app:
+    container_name: hotel_app_${NODE_ENV}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${PORT}:${PORT}
+    env_file:
+      - .env.${NODE_ENV}
+    profiles:
+      - production
+    depends_on:
+      - db
+
+volumes:
+  hotel_db_data:
+    name: hotel_db_data_${NODE_ENV}

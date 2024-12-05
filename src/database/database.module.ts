@@ -15,7 +15,7 @@ import { ConfigModule } from '../common/configs/config.module';
         username: configService.get<string>('MYSQL_USER'),
         password: configService.get<string>('MYSQL_PASSWORD'),
         database: configService.get<string>('MYSQL_DATABASE'),
-        synchronize: configService.get<string>('NODE_ENV') === 'development',
+        synchronize: true,
         autoLoadEntities: true,
       }),
     }),
