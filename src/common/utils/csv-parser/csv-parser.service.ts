@@ -18,12 +18,8 @@ export class CsvParserService {
     );
 
     const records: Record<string, string>[] = [];
-    try {
-      for await (const record of parser) {
-        records.push(record);
-      }
-    } catch (error) {
-      throw error;
+    for await (const record of parser) {
+      records.push(record);
     }
     return records;
   }

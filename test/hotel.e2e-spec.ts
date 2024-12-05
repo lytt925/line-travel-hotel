@@ -194,7 +194,7 @@ describe('End to end testing for hotel routes', () => {
 
     it('should handle missing required field', async () => {
       const missingRequiredCsv = `name,address,email,country,city,longitude,latitude,is_open
-        礁溪老爺酒店,五峰路69號,https://www.hotelroyal.com.tw,台灣,宜蘭,121.776,24.671,true`;
+        礁溪老爺酒店,五峰路69號,emial@mail.com,台灣,宜蘭,121.776,24.671,true`;
 
       const response = await request(app.getHttpServer())
         .post('/api/v1/hotels/import/csv')
@@ -209,7 +209,9 @@ describe('End to end testing for hotel routes', () => {
           errorRecords: [
             {
               row: 1,
-              errors: ['isOpen must be either 1 or 0'],
+              errors: [
+                'isOpen must be a boolean value; For csv import should be 0 or 1',
+              ],
             },
           ],
         },

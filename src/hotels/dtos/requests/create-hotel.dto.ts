@@ -1,12 +1,12 @@
 import {
   IsString,
-  IsOptional,
   IsNotEmpty,
   IsEmail,
   IsBoolean,
-  Matches,
   IsLatitude,
   IsLongitude,
+  IsUrl,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -25,15 +25,8 @@ export class CreateHotelDto {
     example: 'https://hotel.com',
     required: false,
   })
-  @IsOptional()
-  @IsString()
-  @Matches(
-    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/,
-    {
-      message: 'webLink must be a valid URL',
-    },
-  )
-  @Transform(({ value }) => (value === '' ? null : value))
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
+  @ValidateIf((o) => !!o.webLink)
   webLink?: string; // Optional
 
   @ApiProperty({
@@ -71,7 +64,9 @@ export class CreateHotelDto {
     description: 'Hotel status',
     example: true,
   })
-  @IsBoolean()
+  @IsBoolean({
+    message: 'isOpen must be a boolean value; For csv import should be 0 or 1',
+  })
   isOpen: boolean;
 
   @ApiProperty({
