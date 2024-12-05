@@ -1,8 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { VersioningType } from '@nestjs/common';
 import { hotelSeedData } from './seeds/data/hotels';
 
 describe('End to end testing for hotel routes', () => {
