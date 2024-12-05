@@ -1,0 +1,38 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feat/*
+  pull_request:
+    branches:
+      - main
+      - dev
+      - feat/*
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Unit and E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20' # Update this to match your Node.js version
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Unit Tests
+      run: npm run test:cov
+
+    - name: Run E2E Tests
+      run: npm run test:e2e
