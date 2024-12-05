@@ -9,7 +9,6 @@ import {
 } from '@nestjs/swagger';
 import {
   CreateResponseDto,
-  DeleteResponseDto,
   GetAllResponseDto,
   GetByIdResponseDto,
   ImportResponseDto,
@@ -159,20 +158,6 @@ export function ApiUpdate() {
     ApiBadRequestResponse({
       description: 'Invalid hotel data',
       type: BadRequestException,
-    }),
-  );
-}
-
-export function ApiDelete() {
-  return applyDecorators(
-    ApiOperation({ summary: 'Delete a hotel by ID' }),
-    ApiOkResponse({
-      description: 'Hotel deleted successfully',
-      type: DeleteResponseDto,
-    }),
-    ApiNotFoundResponse({
-      description: 'Hotel with ID {id} not found',
-      type: NotFoundException,
     }),
   );
 }

@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   HttpStatus,
   ParseIntPipe,
   UploadedFile,
@@ -23,7 +22,6 @@ import { ResponsePresenter } from '../common/presenters/response.presenter';
 import { ApiTags } from '@nestjs/swagger';
 import {
   ApiCreate,
-  ApiDelete,
   ApiGetAll,
   ApiGetById,
   ApiImportFromCsv,
@@ -123,18 +121,6 @@ export class HotelsController {
     }
     return this.responsePresenter.formatSuccessResponse(
       'Hotel updated successfully',
-    );
-  }
-
-  @Delete(':id')
-  @ApiDelete()
-  async remove(@Param('id') id: number) {
-    const result = await this.hotelsService.remove(id);
-    if (!result) {
-      throw new NotFoundException(`Hotel with ID ${id} not found`);
-    }
-    return this.responsePresenter.formatSuccessResponse(
-      'Hotel removed successfully',
     );
   }
 }

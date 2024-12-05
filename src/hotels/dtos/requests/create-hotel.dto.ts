@@ -3,14 +3,12 @@ import {
   IsOptional,
   IsNotEmpty,
   IsEmail,
-  IsNumber,
   IsBoolean,
   Matches,
-  Min,
-  Max,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsStringNumberInRange } from '../../decorators/validations/isInRange.decorators';
+import { Transform } from 'class-transformer';
 
 export class CreateHotelDto {
   @ApiProperty({
@@ -34,6 +32,7 @@ export class CreateHotelDto {
       message: 'webLink must be a valid URL',
     },
   )
+  @Transform(({ value }) => (value === '' ? null : value))
   webLink?: string; // Optional
 
   @ApiProperty({
@@ -72,34 +71,20 @@ export class CreateHotelDto {
     example: true,
   })
   @IsBoolean()
-  @Transform(({ value }) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') {
-      const lower = value.toLowerCase();
-      if (lower === 'true') return true;
-      if (lower === 'false') return false;
-    }
-    return value;
-  })
-  is_open: boolean;
+  @Transform(({ value }) => (value === '1' || value ? true : false))
+  isOpen: boolean;
 
   @ApiProperty({
-    description: 'Hotel longitude',
-    example: 121.776,
+    description: 'Hotel longitude as a string within -180 to 180 range',
+    example: '121.776',
   })
-  @Min(-180)
-  @Max(180)
-  @IsNumber()
-  @Transform(({ value }) => parseFloat(value))
-  longitude: number;
+  @IsStringNumberInRange(-180, 180)
+  longitude: string;
 
   @ApiProperty({
-    description: 'Hotel latitude',
-    example: 24.671,
+    description: 'Hotel latitude as a string within -90 to 90 range',
+    example: '21.671',
   })
-  @Min(-90)
-  @Max(90)
-  @IsNumber()
-  @Transform(({ value }) => parseFloat(value))
-  latitude: number;
+  @IsStringNumberInRange(-90, 90)
+  latitude: string;
 }

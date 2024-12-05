@@ -14,12 +14,29 @@ export class Hotel {
   @Column({ type: 'varchar', length: 255, nullable: false })
   address: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  city: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  country: string;
+
   @Column({ type: 'varchar', length: 255, nullable: false })
   email: string;
 
-  @Column({ type: 'tinyint', nullable: false })
-  status: number;
+  @Column({ type: 'boolean', nullable: false })
+  isOpen: boolean;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  coordinate: string; // (e.g., "120.332,25.252")
+  @Column({
+    type: 'decimal',
+    precision: 9,
+    scale: 6,
+  })
+  latitude: string;
+
+  @Column({
+    type: 'decimal',
+    precision: 9,
+    scale: 6,
+  })
+  longitude: string;
 }

@@ -12,7 +12,6 @@ export async function mapRecordToCreateHotelDto(
 
     await validateOrReject(createDto, {
       whitelist: true,
-      stopAtFirstError: true,
     });
 
     return createDto;

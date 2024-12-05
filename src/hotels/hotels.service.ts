@@ -6,10 +6,6 @@ import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
 import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
 import { merge } from 'lodash';
 import { CsvParserService } from '../common/utils/csv-parser/csv-parser.service';
-import {
-  mapCreateHotelDtoToEntity,
-  mapEntityToCreateHotelDto,
-} from './mappers/hotel.mapper';
 import { mapRecordToCreateHotelDto } from './mappers/dto.mapper';
 import { ValidationError } from 'class-validator';
 import { ImportResult } from './types/hotel.service.type';
@@ -27,9 +23,7 @@ export class HotelsService {
   }
 
   async create(createHotelDto: CreateHotelDto): Promise<Hotel> {
-    const hotel = this.hotelsRepository.create(
-      mapCreateHotelDtoToEntity(createHotelDto),
-    );
+    const hotel = this.hotelsRepository.create(createHotelDto);
     return await this.hotelsRepository.save(hotel);
   }
 
@@ -59,9 +53,7 @@ export class HotelsService {
     });
 
     await Promise.all(mappingPromises);
-    await this.hotelsRepository.insert(
-      hotelsToInsert.map((h) => mapCreateHotelDtoToEntity(h)),
-    );
+    await this.hotelsRepository.insert(hotelsToInsert);
     return importResult;
   }
 
@@ -74,15 +66,8 @@ export class HotelsService {
     if (!hotel) {
       return null;
     }
-    const transformedHotel = mapEntityToCreateHotelDto(hotel);
-    const updatedHotel = merge(transformedHotel, updateHotelDto);
-    const updatedEntity = mapCreateHotelDtoToEntity(updatedHotel);
-    const result = await this.hotelsRepository.update({ id }, updatedEntity);
-    return result.affected === 1;
-  }
-
-  async remove(id: number): Promise<boolean> {
-    const result = await this.hotelsRepository.delete({ id });
+    const updatedHotel = merge(hotel, updateHotelDto);
+    const result = await this.hotelsRepository.update({ id }, updatedHotel);
     return result.affected === 1;
   }
 }
