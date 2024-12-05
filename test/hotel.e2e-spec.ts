@@ -86,6 +86,15 @@ describe('End to end testing for hotel routes', () => {
 
       expect(response.body.data.hotels.length).toBeGreaterThan(0);
     });
+
+    it('should return page 1 if page is not provided', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/hotels')
+        .expect(200);
+      expect(response.body.data.page).toBe(1);
+      expect(response.body.data.hotels.length).toBeGreaterThan(0);
+    });
+
     it('should return 400 for invalid page number', async () => {
       const response = await request(app.getHttpServer())
         .get('/api/v1/hotels?page=0')

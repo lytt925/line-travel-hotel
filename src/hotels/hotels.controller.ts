@@ -64,7 +64,8 @@ export class HotelsController {
 
   @Get()
   @ApiGetAll()
-  async findAll(@Query('page') page: number = 1): Promise<any> {
+  async findAll(@Query('page') page?: number): Promise<any> {
+    page = isNaN(page) ? 1 : page;
     if (!Number.isInteger(page) || page < 1) {
       throw new BadRequestException(
         'Page must be an integer greater than or equal to 1',
