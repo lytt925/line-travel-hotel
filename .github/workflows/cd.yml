@@ -1,0 +1,34 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy with Docker Compose
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Copy .env.production File
+      run: |
+        echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
+      env:
+        ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
+
+    - name: Stop Preexisting Containers
+      run: |
+        docker compose --profile production --env-file .env.production down || true
+
+    - name: Build Docker Images
+      run: docker compose build --no-cache
+
+    - name: Deploy Application
+      run: docker compose --profile production --env-file .env.production up -d
