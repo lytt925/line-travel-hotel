@@ -59,29 +59,32 @@ describe('End to end testing for hotel routes', () => {
   describe('GET /api/v1/hotels', () => {
     it('should return a list of hotels', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/v1/hotels')
+        .get('/api/v1/hotels?page=1')
         .expect(200);
 
       expect(response.body).toEqual({
         statusCode: 200,
         message: 'Hotels found successfully',
-        data: expect.arrayContaining([
-          expect.objectContaining({
-            id: expect.any(Number),
-            name: expect.any(String),
-            webLink: expect.any(String),
-            country: expect.any(String),
-            city: expect.any(String),
-            address: expect.any(String),
-            email: expect.any(String),
-            isOpen: expect.any(Boolean),
-            latitude: expect.any(String),
-            longitude: expect.any(String),
-          }),
-        ]),
+        data: {
+          hotels: expect.arrayContaining([
+            expect.objectContaining({
+              id: expect.any(Number),
+              name: expect.any(String),
+              webLink: expect.any(String),
+              country: expect.any(String),
+              city: expect.any(String),
+              address: expect.any(String),
+              email: expect.any(String),
+              isOpen: expect.any(Boolean),
+              latitude: expect.any(String),
+              longitude: expect.any(String),
+            }),
+          ]),
+          page: 1,
+        },
       });
 
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(response.body.data.hotels.length).toBeGreaterThan(0);
     });
   });
 

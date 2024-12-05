@@ -7,7 +7,6 @@ import { Hotel } from './entities/hotel.entity';
 import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
 import { ImportResult } from './types/hotel.service.type';
 import { CsvError } from 'csv-parse';
-import { mock } from 'node:test';
 
 describe('HotelsController', () => {
   let controller: HotelsController;
