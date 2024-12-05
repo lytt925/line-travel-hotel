@@ -112,19 +112,35 @@ export class HotelsController {
   ) {
     try {
       const importResults = await this.hotelsService.importFromFile(file);
-      if (importResults.errorRecords.length > 0)
-        return this.responsePresenter.formatSuccessResponse(
-          'Hotels imported with errors',
-          importResults,
-        );
+
+      if (
+        importResults.successRecords.length === 0 &&
+        importResults.errorRecords.length === 0
+      ) {
+        throw new BadRequestException('No records found in the file');
+      }
+
+      if (importResults.successRecords.length === 0) {
+        throw new BadRequestException({
+          message: 'No records successfully imported',
+          data: importResults,
+        });
+      }
+
+      let message = 'Hotels imported successfully';
+      if (importResults.errorRecords.length > 0) {
+        message = 'Some records failed to import';
+      }
+
       return this.responsePresenter.formatSuccessResponse(
-        'Hotels imported successfully',
+        message,
         importResults,
       );
     } catch (error) {
       if (error instanceof CsvError) {
         throw new BadRequestException(error.message);
       }
+      throw error;
     }
   }
 

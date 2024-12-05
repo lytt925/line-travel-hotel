@@ -72,7 +72,6 @@ export class CreateHotelDto {
     example: true,
   })
   @IsBoolean()
-  @Transform(({ value }) => (value === '1' || value === true ? true : false))
   isOpen: boolean;
 
   @ApiProperty({
@@ -80,12 +79,14 @@ export class CreateHotelDto {
     example: '121.776',
   })
   @IsLongitude()
+  @Transform(({ value }) => value.toString())
   longitude: string;
 
   @ApiProperty({
     description: 'Hotel latitude as a string within -90 to 90 range',
     example: '21.671',
   })
+  @Transform(({ value }) => value.toString())
   @IsLatitude()
   latitude: string;
 }

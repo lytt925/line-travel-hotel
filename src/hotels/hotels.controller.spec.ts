@@ -175,7 +175,6 @@ describe('HotelsController', () => {
         responsePresenter,
         'formatSuccessResponse',
       );
-
       const result = await controller.importFromFile(mockFile);
 
       expect(mockHotelsService.importFromFile).toHaveBeenCalledWith(mockFile);
@@ -189,7 +188,7 @@ describe('HotelsController', () => {
       });
     });
 
-    it('should handle import with errors', async () => {
+    it('should handle import with partial errors', async () => {
       const mockPartialErrorFile: Express.Multer.File = {
         ...mockFile,
         buffer: Buffer.from(`
@@ -218,22 +217,58 @@ describe('HotelsController', () => {
         responsePresenter,
         'formatSuccessResponse',
       );
-
       const result = await controller.importFromFile(mockPartialErrorFile);
 
       expect(mockHotelsService.importFromFile).toHaveBeenCalledWith(
         mockPartialErrorFile,
       );
-
       expect(spyOnFormatSuccessResponse).toHaveBeenCalledWith(
-        'Hotels imported with errors',
+        'Some records failed to import',
         mockImportResults,
       );
-
       expect(result).toEqual({
-        message: 'Hotels imported with errors',
+        message: 'Some records failed to import',
         data: mockImportResults,
       });
+    });
+
+    it('should throw BadRequestException on empty file', async () => {
+      const mockEmptyFile: Express.Multer.File = {
+        ...mockFile,
+        buffer: Buffer.from(''),
+      };
+      mockHotelsService.importFromFile.mockResolvedValue({
+        successRecords: [],
+        errorRecords: [],
+      });
+      await expect(controller.importFromFile(mockEmptyFile)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('No records successfully imported', async () => {
+      const mockNoImportFile: Express.Multer.File = {
+        ...mockFile,
+        buffer: Buffer.from(`
+          name,address,email,country,city,longitude,latitude,isOpen
+          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,94.671,0 
+        `),
+      };
+
+      const mockImportResults = {
+        successRecords: [],
+        errorRecords: [
+          {
+            row: 1,
+            errors: ['latitude must not be greater than 90'],
+          },
+        ],
+      };
+
+      mockHotelsService.importFromFile.mockResolvedValue(mockImportResults);
+      await expect(controller.importFromFile(mockNoImportFile)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException on CsvError', async () => {
@@ -241,7 +276,7 @@ describe('HotelsController', () => {
         ...mockFile,
         buffer: Buffer.from(`
           name,address,email,country,city,longitude,latitude,isOpen
-          礁溪老爺酒店101,五峰路69號ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,0
+          礁溪老爺酒店101,五峰路69號,
         `),
       };
 
