@@ -86,6 +86,17 @@ describe('End to end testing for hotel routes', () => {
 
       expect(response.body.data.hotels.length).toBeGreaterThan(0);
     });
+    it('should return 400 for invalid page number', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/hotels?page=0')
+        .expect(400);
+
+      expect(response.body).toEqual({
+        statusCode: 400,
+        error: 'Bad Request',
+        message: 'Page must be an integer greater than or equal to 1',
+      });
+    });
   });
 
   describe('POST /api/v1/hotels', () => {
