@@ -13,6 +13,9 @@ on:
       - feat/*
   workflow_dispatch:
 
+env:
+  HUSKY: 0
+
 jobs:
   test:
     name: Run Unit and E2E Tests
