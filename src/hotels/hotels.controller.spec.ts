@@ -7,6 +7,7 @@ import { Hotel } from './entities/hotel.entity';
 import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
 import { ImportResult } from './types/hotel.service.type';
 import { CsvError } from 'csv-parse';
+import { mock } from 'node:test';
 
 describe('HotelsController', () => {
   let controller: HotelsController;
@@ -28,7 +29,7 @@ describe('HotelsController', () => {
   ];
 
   const mockHotelsService = {
-    findAll: jest.fn(() => mockHotelsData),
+    findAll: jest.fn(),
     findOne: jest.fn((id: number) =>
       id === 1 ? mockHotelsData.find((hotel) => hotel.id === 1) : null,
     ),
@@ -53,13 +54,39 @@ describe('HotelsController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all hotels', async () => {
-      const result = await controller.findAll();
-      expect(mockHotelsService.findAll).toHaveBeenCalled();
+    const mockPaginatedData = mockHotelsData.slice(0, 10);
+    const mockPage = 1;
+    it('should return paginated hotels', async () => {
+      mockHotelsService.findAll.mockResolvedValue(mockPaginatedData);
+      const result = await controller.findAll(mockPage);
+      expect(mockHotelsService.findAll).toHaveBeenCalledWith(mockPage);
       expect(result).toEqual({
         message: 'Hotels found successfully',
-        data: mockHotelsData,
+        data: {
+          hotels: mockPaginatedData,
+          page: mockPage,
+        },
       });
+    });
+
+    it('should give page 1 if page is not provided', async () => {
+      mockHotelsService.findAll.mockResolvedValue(mockPaginatedData);
+      const result = await controller.findAll();
+      expect(mockHotelsService.findAll).toHaveBeenCalledWith(mockPage);
+      expect(result).toEqual({
+        message: 'Hotels found successfully',
+        data: {
+          hotels: mockPaginatedData,
+          page: mockPage,
+        },
+      });
+    });
+
+    it('should give bad request', async () => {
+      const mockPage = 0;
+      await expect(controller.findAll(mockPage)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

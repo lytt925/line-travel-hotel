@@ -5,6 +5,7 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   HttpStatus,
   ParseIntPipe,
   UploadedFile,
@@ -63,13 +64,23 @@ export class HotelsController {
 
   @Get()
   @ApiGetAll()
-  async findAll() {
-    const hotels = await this.hotelsService.findAll();
+  async findAll(@Query('page') page: number = 1): Promise<any> {
+    if (!Number.isInteger(page) || page < 1) {
+      throw new BadRequestException(
+        'Page must be an integer greater than or equal to 1',
+      );
+    }
+
+    const hotels = await this.hotelsService.findAll(page);
     return this.responsePresenter.formatSuccessResponse(
       'Hotels found successfully',
-      hotels,
+      {
+        hotels,
+        page,
+      },
     );
   }
+
   @Post()
   @ApiCreate()
   async create(@Body() createHotelDto: CreateHotelDto) {
