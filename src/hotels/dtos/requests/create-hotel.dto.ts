@@ -5,9 +5,10 @@ import {
   IsEmail,
   IsBoolean,
   Matches,
+  IsLatitude,
+  IsLongitude,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsStringNumberInRange } from '../../decorators/validations/isInRange.decorators';
 import { Transform } from 'class-transformer';
 
 export class CreateHotelDto {
@@ -78,13 +79,13 @@ export class CreateHotelDto {
     description: 'Hotel longitude as a string within -180 to 180 range',
     example: '121.776',
   })
-  @IsStringNumberInRange(-180, 180)
+  @IsLongitude()
   longitude: string;
 
   @ApiProperty({
     description: 'Hotel latitude as a string within -90 to 90 range',
     example: '21.671',
   })
-  @IsStringNumberInRange(-90, 90)
+  @IsLatitude()
   latitude: string;
 }

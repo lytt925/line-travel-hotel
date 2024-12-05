@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { VersioningType } from '@nestjs/common';
 
@@ -11,13 +10,6 @@ async function bootstrap() {
         ? ['log', 'error', 'warn', 'debug', 'verbose']
         : ['log', 'error', 'warn'],
   });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
   app.enableCors();
   app.setGlobalPrefix('api');
   app.enableVersioning({
