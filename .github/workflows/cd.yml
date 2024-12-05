@@ -31,8 +31,6 @@ jobs:
 
     - name: Build Docker Images
       run: |
-        ls -al
-        cat /etc/group | grep docker
         docker compose --profile production --env-file .env.production build --no-cache
 
     - name: Deploy Application
