@@ -71,7 +71,7 @@ export class CreateHotelDto {
     example: true,
   })
   @IsBoolean()
-  @Transform(({ value }) => (value === '1' || value ? true : false))
+  @Transform(({ value }) => (value === '1' || value === true ? true : false))
   isOpen: boolean;
 
   @ApiProperty({

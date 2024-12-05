@@ -87,9 +87,9 @@ describe('HotelsService', () => {
     it('should process the file and import hotels', async () => {
       const mockFile = {
         buffer: Buffer.from(`
-          name,address,email,country,city,longitude,latitude,is_open
-          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,true
-          礁溪老爺酒店102,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,24.671,true
+          name,address,email,country,city,longitude,latitude,isOpen,webLink
+          礁溪老爺酒店101,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,0,
+          礁溪老爺酒店102,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,24.671,1,https://hotel.com
         `),
       } as Express.Multer.File;
       const mockRecords: Record<string, string>[] = [
@@ -101,7 +101,8 @@ describe('HotelsService', () => {
           city: '宜蘭',
           longitude: '121.776',
           latitude: '24.671',
-          isOpen: '1',
+          isOpen: '0',
+          webLink: '',
         },
         {
           name: '礁溪老爺酒店102',
@@ -112,6 +113,7 @@ describe('HotelsService', () => {
           longitude: '121.776',
           latitude: '24.671',
           isOpen: '1',
+          webLink: 'https://hotel.com',
         },
       ];
 
