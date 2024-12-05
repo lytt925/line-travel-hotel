@@ -65,7 +65,7 @@ describe('HotelsService', () => {
   describe('findAll', () => {
     it('should return all hotels', async () => {
       hotelsRepository.find.mockResolvedValue([mockHotel]);
-      const result = await service.findAll();
+      const result = await service.findAll(1);
       expect(result).toEqual([mockHotel]);
       expect(hotelsRepository.find).toHaveBeenCalledTimes(1);
     });

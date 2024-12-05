@@ -18,8 +18,14 @@ export class HotelsService {
     private csvParser: CsvParserService,
   ) {}
 
-  async findAll(): Promise<Hotel[]> {
-    return await this.hotelsRepository.find();
+  async findAll(page: number): Promise<Hotel[]> {
+    const take = 10;
+    const skip = (page - 1) * take;
+
+    return await this.hotelsRepository.find({
+      skip,
+      take,
+    });
   }
 
   async create(createHotelDto: CreateHotelDto): Promise<Hotel> {
