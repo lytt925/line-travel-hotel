@@ -2,6 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiCreatedResponse,
   ApiBadRequestResponse,
   ApiOperation,
   ApiBody,
@@ -95,9 +96,25 @@ export function ApiCreate() {
       description: 'Hotel data',
       type: CreateHotelDto,
     }),
-    ApiOkResponse({
+    ApiCreatedResponse({
       description: 'Hotel created successfully',
       type: CreateResponseDto,
+      example: {
+        statusCode: 201,
+        message: 'Hotel created successfully',
+        data: {
+          name: '礁溪老爺酒店',
+          webLink: 'https://hotel.com',
+          address: '五峰路69號',
+          city: '宜蘭',
+          country: '台灣',
+          email: 'hotel@hotel.com',
+          isOpen: true,
+          latitude: '21.671',
+          longitude: '121.776',
+          id: 1,
+        },
+      },
     }),
     ApiBadRequestResponse({
       description: 'Invalid hotel data',

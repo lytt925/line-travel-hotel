@@ -1,4 +1,3 @@
-- [ ] pagination
 - [ ] check api docs is correct after schema change
 - [ ] add ci
 - [ ] add cd
