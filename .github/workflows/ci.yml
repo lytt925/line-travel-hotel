@@ -15,4 +15,4 @@ on:
 
 jobs:
   test:
-    uses: ./.github/workflows/ci-reusable.yml
+    uses: ./.github/workflows/testing.yml

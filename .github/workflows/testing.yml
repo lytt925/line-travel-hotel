@@ -1,4 +1,4 @@
-name: Reusable CI Pipeline
+name: CI Testing Pipeline
 
 on:
   workflow_call: {} 
