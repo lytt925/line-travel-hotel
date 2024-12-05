@@ -22,7 +22,6 @@ jobs:
     - name: Copy .env.production File
       run: |
         echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
-        echo "ls -la"
       env:
         ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
 
@@ -31,7 +30,11 @@ jobs:
         docker compose --profile production --env-file .env.production down || true
 
     - name: Build Docker Images
-      run: docker compose build --no-cache
+      run: |
+        ls -al
+        cat /etc/group | grep docker
+        docker compose --profile production --env-file .env.production build --no-cache
 
     - name: Deploy Application
-      run: docker compose --profile production --env-file .env.production up -d
+      run: |
+        docker compose --profile production --env-file .env.production up -d
