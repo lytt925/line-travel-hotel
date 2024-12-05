@@ -15,11 +15,14 @@ describe('HotelsController', () => {
     {
       id: 1,
       name: 'Mock Hotel',
-      address: '123 Example Street, Taipei',
+      country: 'Taiwan',
+      city: 'Taipei',
+      address: '123 Example Street',
       email: 'mockhotel@example.com',
-      status: 1,
-      coordinate: '120.332,25.252',
+      isOpen: true,
       webLink: 'https://mockhotel.com',
+      longitude: '121.5',
+      latitude: '25.0',
     },
   ];
 
@@ -32,7 +35,6 @@ describe('HotelsController', () => {
     update: jest.fn((id: number, dto: CreateHotelDto) =>
       id === 1 ? { id, ...dto } : null,
     ),
-    remove: jest.fn((id: number) => (id === 1 ? true : false)),
     importFromFile: jest.fn<Promise<ImportResult>, []>(),
   };
 
@@ -80,15 +82,15 @@ describe('HotelsController', () => {
 
   describe('create', () => {
     it('should create a hotel', async () => {
-      const createHotelDto = {
+      const createHotelDto: CreateHotelDto = {
         name: 'New Hotel',
         country: 'Taiwan',
         city: 'Taipei',
         address: '123 Street',
         email: 'hotel@hotel.com',
-        is_open: true,
-        longitude: 121.5,
-        latitude: 25.0,
+        isOpen: true,
+        longitude: '121.5',
+        latitude: '25.0',
       };
       const result = await controller.create(createHotelDto);
       expect(mockHotelsService.create).toHaveBeenCalledWith(createHotelDto);
@@ -114,20 +116,6 @@ describe('HotelsController', () => {
       await expect(controller.update(2, updateHotelDto)).rejects.toThrow(
         NotFoundException,
       );
-    });
-  });
-
-  describe('remove', () => {
-    it('should remove a hotel', async () => {
-      const result = await controller.remove(1);
-      expect(mockHotelsService.remove).toHaveBeenCalledWith(1);
-      expect(result).toEqual({
-        message: 'Hotel removed successfully',
-      });
-    });
-
-    it('should throw NotFoundException if hotel to remove is not found', async () => {
-      await expect(controller.remove(2)).rejects.toThrow(NotFoundException);
     });
   });
 

@@ -3,6 +3,6 @@ import { CsvParserService } from './csv-parser.service';
 
 @Module({
   providers: [CsvParserService],
-  exports: [CsvParserService], // Export the service for use in other modules
+  exports: [CsvParserService],
 })
 export class CsvParserModule {}

@@ -9,7 +9,7 @@ import {
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      ignoreEnvFile: process.env.NODE_ENV === 'production', // use shell env vars in production
+      ignoreEnvFile: ['production', 'test'].includes(process.env.NODE_ENV), // use shell env vars in production
       envFilePath: '.env.development',
     }),
   ],
