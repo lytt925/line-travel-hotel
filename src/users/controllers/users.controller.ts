@@ -7,9 +7,10 @@ import {
   Param,
   UsePipes,
   ValidationPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from '../services';
-import { CreateUserDto, UpdateUserDto } from '../dto';
+import { CreateUserDto, UpdateUserDto, UserPublicDto } from '../dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
 
@@ -41,12 +42,26 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findOne(id);
+    return this.responsePresenter.formatSuccessResponse(
+      'User found successfully',
+      user,
+    );
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user: UserPublicDto = await this.usersService.update(
+      id,
+      updateUserDto,
+    );
+    return this.responsePresenter.formatSuccessResponse(
+      'User updated successfully',
+      user,
+    );
   }
 }

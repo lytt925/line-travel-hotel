@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller';
+import { UsersController } from './';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
 import { UsersService } from '../services';
-import { CreateUserDto } from '../dto';
+import { CreateUserDto, UserPublicDto } from '../dto';
 
 const mockUsersService = () => ({
   create: jest.fn(),
@@ -71,6 +71,50 @@ describe('UsersController', () => {
         mockUser,
       );
       expect(result).toEqual(mockCreateResponse);
+    });
+  });
+
+  describe('findOne', () => {
+    const mockUserPublic: UserPublicDto = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@gmail.com',
+    };
+    it('should return a user by ID', async () => {
+      const spyOnFormatSuccessResponse = jest.spyOn(
+        responsePresenter,
+        'formatSuccessResponse',
+      );
+      usersService.findOne.mockResolvedValue(mockUserPublic);
+      const result = await controller.findOne(1);
+      expect(spyOnFormatSuccessResponse).toHaveBeenCalledWith(
+        'User found successfully',
+        mockUserPublic,
+      );
+      expect(result).toEqual({
+        message: 'User found successfully',
+        data: mockUserPublic,
+      });
+    });
+  });
+
+  describe('update', () => {
+    const mockUpdateUserDto = { firstName: 'John' };
+    const mockUserPublic: UserPublicDto = {
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'test@gmail.com',
+    };
+    it('should update a user', async () => {
+      usersService.update.mockResolvedValue(mockUserPublic);
+      const result = await controller.update(1, mockUpdateUserDto);
+      expect(usersService.update).toHaveBeenCalledWith(1, mockUpdateUserDto);
+      expect(result).toEqual({
+        message: 'User updated successfully',
+        data: mockUserPublic,
+      });
     });
   });
 });
