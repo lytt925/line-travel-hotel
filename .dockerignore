@@ -1,0 +1,44 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+
+# Build and compiled files
+dist
+coverage
+*.tsbuildinfo
+
+# Test-related files and folders
+test/**/*
+
+# CSV and other data files
+csvs
+*.csv
+
+# Documentation and reports
+lcov-report
+*.lcov
+*.info
+*.xml
+
+# IDE and editor-specific files
+*.idea
+*.vscode
+*.DS_Store
+
+# Logs
+*.log
+logs
+debug.log
+
+# System files
+Thumbs.db
+*.swp
+*.tmp
+
+# Miscellaneous
+README.md
+TODO.md
+tree.txt
+
+.env
+.env.*
