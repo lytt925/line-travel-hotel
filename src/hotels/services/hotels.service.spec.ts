@@ -6,6 +6,7 @@ import { Hotel } from '../entities/hotel.entity';
 import { Repository } from 'typeorm';
 import { CreateHotelDto } from '../dtos';
 import { HotelEntity } from '../entities/hotel.orm-entity';
+import { ConflictException } from '@nestjs/common';
 
 const mockCreateHotelDto: CreateHotelDto = {
   name: 'Mock Hotel',
@@ -81,6 +82,13 @@ describe('HotelsService', () => {
       expect(result).toEqual(mockHotel);
       expect(hotelsRepository.create).toHaveBeenCalledWith(expect.any(Object));
       expect(hotelsRepository.save).toHaveBeenCalledWith(mockHotel);
+    });
+
+    it('should throw conflict exception if hotel name exists', async () => {
+      hotelsRepository.findOne.mockResolvedValue(mockHotel);
+      await expect(service.create(mockCreateHotelDto)).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 

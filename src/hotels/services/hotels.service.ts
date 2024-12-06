@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HotelEntity } from '../entities/hotel.orm-entity';
-import { Hotel } from '../entities/hotel.entity';
 import { CreateHotelDto, UpdateHotelDto, ImportResult } from '../dtos';
 import { merge } from 'lodash';
 import { CsvParserService } from '../../common/utils/csv-parser/csv-parser.service';
@@ -17,7 +16,7 @@ export class HotelsService {
     private csvParser: CsvParserService,
   ) {}
 
-  async findAll(page: number): Promise<Hotel[]> {
+  async findAll(page: number): Promise<HotelEntity[]> {
     const take = 10;
     const skip = (page - 1) * take;
     return await this.hotelsRepository.find({
@@ -26,7 +25,14 @@ export class HotelsService {
     });
   }
 
-  async create(createHotelDto: CreateHotelDto): Promise<Hotel> {
+  async create(createHotelDto: CreateHotelDto): Promise<HotelEntity> {
+    const existingHotel = await this.hotelsRepository.findOne({
+      where: { name: createHotelDto.name },
+    });
+    if (existingHotel) {
+      throw new ConflictException('Hotel already exists');
+    }
+
     const hotel = this.hotelsRepository.create(createHotelDto);
     return await this.hotelsRepository.save(hotel);
   }
@@ -61,7 +67,7 @@ export class HotelsService {
     return importResult;
   }
 
-  async findOne(id: number): Promise<Hotel | null> {
+  async findOne(id: number): Promise<HotelEntity | null> {
     return await this.hotelsRepository.findOne({ where: { id } });
   }
 
