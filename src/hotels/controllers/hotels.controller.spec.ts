@@ -2,40 +2,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HotelsController } from './';
 import { HotelsService } from '../services';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Hotel } from '../entities/hotel.entity';
-import { CreateHotelDto, ImportResult } from '../dtos';
+import { CreateHotelDto, ImportResult, UpdateHotelDto } from '../dtos';
 import { CsvError } from 'csv-parse';
 
 describe('HotelsController', () => {
   let controller: HotelsController;
   let responsePresenter: ResponsePresenter;
 
-  const mockHotelsData: Hotel[] = [
-    {
-      id: 1,
-      name: 'Mock Hotel',
-      country: 'Taiwan',
-      city: 'Taipei',
-      address: '123 Example Street',
-      email: 'mockhotel@example.com',
-      isOpen: true,
-      webLink: 'https://mockhotel.com',
-      longitude: '121.5',
-      latitude: '25.0',
-    },
-  ];
-
   const mockHotelsService = {
     findAll: jest.fn(),
-    findOne: jest.fn((id: number) =>
-      id === 1 ? mockHotelsData.find((hotel) => hotel.id === 1) : null,
-    ),
-    create: jest.fn((dto): CreateHotelDto => ({ id: 2, ...dto })),
-    update: jest.fn((id: number, dto: CreateHotelDto) =>
-      id === 1 ? { id, ...dto } : null,
-    ),
-    importFromFile: jest.fn<Promise<ImportResult>, []>(),
+    findOne: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    importFromFile: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -51,30 +32,47 @@ describe('HotelsController', () => {
     responsePresenter = module.get<ResponsePresenter>(ResponsePresenter);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const mockHotelsData: Hotel[] = [
+    {
+      id: 1,
+      name: 'Mock Hotel',
+      country: 'Taiwan',
+      city: 'Taipei',
+      address: '123 Example Street',
+      email: 'test@gmail.com',
+      isOpen: true,
+      webLink: 'https://mockhotel.com',
+      latitude: '25.0',
+      longitude: '121.5',
+    },
+  ];
   describe('findAll', () => {
-    const mockPaginatedData = mockHotelsData.slice(0, 10);
     const mockPage = 1;
     it('should return paginated hotels', async () => {
-      mockHotelsService.findAll.mockResolvedValue(mockPaginatedData);
+      mockHotelsService.findAll.mockResolvedValue(mockHotelsData);
       const result = await controller.findAll(mockPage);
       expect(mockHotelsService.findAll).toHaveBeenCalledWith(mockPage);
       expect(result).toEqual({
         message: 'Hotels found successfully',
         data: {
-          hotels: mockPaginatedData,
+          hotels: mockHotelsData,
           page: mockPage,
         },
       });
     });
 
     it('should give page 1 if page is not provided', async () => {
-      mockHotelsService.findAll.mockResolvedValue(mockPaginatedData);
+      mockHotelsService.findAll.mockResolvedValue(mockHotelsData);
       const result = await controller.findAll();
       expect(mockHotelsService.findAll).toHaveBeenCalledWith(mockPage);
       expect(result).toEqual({
         message: 'Hotels found successfully',
         data: {
-          hotels: mockPaginatedData,
+          hotels: mockHotelsData,
           page: mockPage,
         },
       });
@@ -90,16 +88,14 @@ describe('HotelsController', () => {
 
   describe('findOne', () => {
     it('should return a hotel by ID', async () => {
+      const mockFindHotel = mockHotelsData.find((hotel) => hotel.id === 1);
+      mockHotelsService.findOne.mockResolvedValue(mockFindHotel);
       const result = await controller.findOne(1);
       expect(mockHotelsService.findOne).toHaveBeenCalledWith(1);
       expect(result).toEqual({
         message: 'Hotel found successfully',
-        data: mockHotelsData.find((hotel) => hotel.id === 1),
+        data: mockFindHotel,
       });
-    });
-
-    it('should throw NotFoundException if hotel not found', async () => {
-      await expect(controller.findOne(200)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -115,6 +111,7 @@ describe('HotelsController', () => {
         longitude: '121.5',
         latitude: '25.0',
       };
+      mockHotelsService.create.mockResolvedValue({ id: 2, ...createHotelDto });
       const result = await controller.create(createHotelDto);
       expect(mockHotelsService.create).toHaveBeenCalledWith(createHotelDto);
       expect(result).toEqual({
@@ -126,19 +123,15 @@ describe('HotelsController', () => {
 
   describe('update', () => {
     it('should update a hotel', async () => {
-      const updateHotelDto = { name: 'Updated Hotel' };
+      const updateHotelDto: UpdateHotelDto = { name: 'Updated Hotel' };
+      const mockUpdatedHotel = { ...mockHotelsData[0], ...updateHotelDto };
+      mockHotelsService.update.mockResolvedValue(mockUpdatedHotel);
       const result = await controller.update(1, updateHotelDto);
       expect(mockHotelsService.update).toHaveBeenCalledWith(1, updateHotelDto);
       expect(result).toEqual({
         message: 'Hotel updated successfully',
+        data: mockUpdatedHotel,
       });
-    });
-
-    it('should throw NotFoundException if hotel to update is not found', async () => {
-      const updateHotelDto = { name: 'Updated Hotel' };
-      await expect(controller.update(2, updateHotelDto)).rejects.toThrow(
-        NotFoundException,
-      );
     });
   });
 

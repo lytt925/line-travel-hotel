@@ -1,11 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import {
+  INestApplication,
+  VersioningType,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { hotelSeedData } from './seeds/data/hotels';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { HotelEntity } from '../src/hotels/entities/hotel.orm-entity';
 
 describe('End to end testing for hotel routes', () => {
   let app: INestApplication;
+  let hotelRepository: any;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -18,6 +25,8 @@ describe('End to end testing for hotel routes', () => {
       type: VersioningType.URI,
     });
     await app.init();
+
+    hotelRepository = moduleFixture.get(getRepositoryToken(HotelEntity));
   });
 
   afterAll(async () => {
@@ -167,13 +176,15 @@ describe('End to end testing for hotel routes', () => {
         error: 'Bad Request',
       });
     });
+
+    // it('should throw error if hotel already exists', async () => {});
   });
 
   describe('POST /api/v1/hotels/import/csv', () => {
     it('should import hotels successfully from a valid CSV file', async () => {
       const mockCsv = `name,address,email,country,city,longitude,latitude,isOpen,webLink
         礁溪老爺酒店1,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,https://fake-hotels.com
-        礁溪老爺酒店1,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,`;
+        礁溪老爺酒店2,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,`;
 
       const response = await request(app.getHttpServer())
         .post('/api/v1/hotels/import/csv')
@@ -298,6 +309,46 @@ describe('End to end testing for hotel routes', () => {
         error: 'Bad Request',
       });
     });
+
+    it('should return 409 conflict error', async () => {
+      const mockCsv = `name,address,email,country,city,longitude,latitude,isOpen,webLink
+        礁溪老爺酒店1,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,https://fake-hotels.com
+        礁溪老爺酒店1,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,`;
+
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/hotels/import/csv')
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', Buffer.from(mockCsv), 'test.csv')
+        .expect(409);
+
+      expect(response.body).toEqual({
+        message: 'Duplicate hotel name',
+        error: 'Conflict',
+        statusCode: 409,
+      });
+    });
+
+    it('should return 501 not implemented error', async () => {
+      const mockCsv = `name,address,email,country,city,longitude,latitude,isOpen,webLink
+        礁溪老爺酒店1,五峰路69號,ytlit.wt@gami.com,台灣,宜蘭,12.776,24.671,1,https://fake-hotels.com`;
+
+      // Mocking the service or handler to throw a 501 error
+      jest.spyOn(hotelRepository, 'insert').mockImplementation(() => {
+        throw new Error('Some error');
+      });
+
+      const response = await request(app.getHttpServer())
+        .post('/api/v1/hotels/import/csv')
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', Buffer.from(mockCsv), 'test.csv')
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Internal Server Error',
+        message: 'Failed to import hotels',
+        statusCode: 500,
+      });
+    });
   });
 
   describe('PATCH /api/v1/hotels/:id', () => {
@@ -322,6 +373,7 @@ describe('End to end testing for hotel routes', () => {
       expect(response.body).toEqual({
         statusCode: 200,
         message: 'Hotel updated successfully',
+        data: { id: hotelIdToUpdate, ...updatedHotel },
       });
     });
 

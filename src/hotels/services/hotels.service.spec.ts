@@ -3,10 +3,10 @@ import { HotelsService } from './';
 import { CsvParserService } from '../../common/utils/csv-parser/csv-parser.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Hotel } from '../entities/hotel.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CreateHotelDto } from '../dtos';
 import { HotelEntity } from '../entities/hotel.orm-entity';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 const mockCreateHotelDto: CreateHotelDto = {
   name: 'Mock Hotel',
@@ -99,7 +99,7 @@ describe('HotelsService', () => {
           name,address,email,country,city,longitude,latitude,isOpen,webLink
           礁溪老爺酒店101,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,94.671,0,
           礁溪老爺酒店102,五峰路69號,https://fake-hotels.com,台灣,宜蘭,12.776,24.671,true,https://hotel.com
-          礁溪老爺酒店101,五峰路69號,yt@gami.com,台灣,宜蘭,12.776,24.671,0,https://hotel.com
+          礁溪老爺酒店103,五峰路69號,yt@gami.com,台灣,宜蘭,12.776,24.671,0,https://hotel.com
         `),
       } as Express.Multer.File;
       const mockRecords: Record<string, string>[] = [
@@ -149,6 +149,70 @@ describe('HotelsService', () => {
       );
       expect(hotelsRepository.insert).toHaveBeenCalledTimes(1);
     });
+
+    it('should throw error if hotel name exists', async () => {
+      const mockFile = {
+        buffer: Buffer.from(`
+          name,address,email,country,city,longitude,latitude,isOpen,webLink
+          礁溪老爺酒店101,五峰路69號,mail@mail.com,台灣,宜蘭,12.776,24.671,0,
+          礁溪老爺酒店101,五峰路69號,mail@mail.com,台灣,宜蘭,12.776,24.671,0,`),
+      } as Express.Multer.File;
+      const mockRecords: Record<string, string>[] = [
+        {
+          name: '礁溪老爺酒店101',
+          address: '五峰路69號',
+          email: 'https://fake-hotels.com',
+          country: '台灣',
+          city: '宜蘭',
+          longitude: '121.776',
+          latitude: '94.671',
+          isOpen: '0',
+          webLink: '',
+        },
+        {
+          name: '礁溪老爺酒店101',
+          address: '五峰路69號',
+          email: 'https://fake-hotels.com',
+          country: '台灣',
+          city: '宜蘭',
+          longitude: '121.776',
+          latitude: '24.671',
+          isOpen: '0',
+          webLink: '',
+        },
+      ];
+      csvParser.parseCsvFromBuffer.mockResolvedValue(mockRecords);
+      hotelsRepository.insert.mockRejectedValue(
+        new QueryFailedError('query', [], Error('Duplicate hotel name')),
+      );
+      expect(service.importFromFile(mockFile)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('should throw error if hotel name exists', async () => {
+      const mockFile = {
+        buffer: Buffer.from(`
+          name,address,email,country,city,longitude,latitude,isOpen,webLink
+          礁溪老爺酒店101,五峰路69號,mail@mail.com,台灣,宜蘭,12.776,24.671,0,`),
+      } as Express.Multer.File;
+      const mockRecords: Record<string, string>[] = [
+        {
+          name: '礁溪老爺酒店101',
+          address: '五峰路69號',
+          email: 'https://fake-hotels.com',
+          country: '台灣',
+          city: '宜蘭',
+          longitude: '121.776',
+          latitude: '94.671',
+          isOpen: '0',
+          webLink: '',
+        },
+      ];
+      csvParser.parseCsvFromBuffer.mockResolvedValue(mockRecords);
+      hotelsRepository.insert.mockRejectedValue(Error);
+      expect(service.importFromFile(mockFile)).rejects.toThrow(Error);
+    });
   });
 
   describe('findOne', () => {
@@ -163,23 +227,24 @@ describe('HotelsService', () => {
   });
 
   describe('update', () => {
-    it('should update and return true if the hotel exists', async () => {
+    it('should update and return updated hotel', async () => {
       hotelsRepository.findOne.mockResolvedValue(mockHotel);
-      hotelsRepository.update.mockResolvedValue({ affected: 1 } as any);
-
       const result = await service.update(1, { name: 'Hotel B' });
-      expect(result).toBe(true);
+      expect(hotelsRepository.update).toHaveBeenCalledWith(mockHotel, {
+        ...mockHotel,
+        name: 'Hotel B',
+      });
       expect(hotelsRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
       });
-      expect(hotelsRepository.update).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ ...mockHotel, name: 'Hotel B' });
     });
 
-    it('should return null if the hotel does not exist', async () => {
+    it('should throw error if the hotel does not exist', async () => {
       hotelsRepository.findOne.mockResolvedValue(null);
-
-      const result = await service.update(1, { name: 'Hotel B' });
-      expect(result).toBeNull();
+      expect(service.update(1, { name: 'Hotel B' })).rejects.toThrow(
+        NotFoundException,
+      );
       expect(hotelsRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
       });

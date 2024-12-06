@@ -11,7 +11,6 @@ import {
   UploadedFile,
   UseInterceptors,
   ParseFilePipeBuilder,
-  NotFoundException,
   BadRequestException,
   UsePipes,
   ValidationPipe,
@@ -52,9 +51,6 @@ export class HotelsController {
   @ApiGetById()
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const hotel = await this.hotelsService.findOne(id);
-    if (!hotel) {
-      throw new NotFoundException(`Hotel with ID ${id} not found`);
-    }
     return this.responsePresenter.formatSuccessResponse(
       'Hotel found successfully',
       hotel,
@@ -149,12 +145,10 @@ export class HotelsController {
     @Param('id') id: number,
     @Body() updateHotelDto: UpdateHotelDto,
   ) {
-    const result = await this.hotelsService.update(id, updateHotelDto);
-    if (!result) {
-      throw new NotFoundException(`Hotel with ID ${id} not found`);
-    }
+    const hotel = await this.hotelsService.update(id, updateHotelDto);
     return this.responsePresenter.formatSuccessResponse(
       'Hotel updated successfully',
+      hotel,
     );
   }
 }

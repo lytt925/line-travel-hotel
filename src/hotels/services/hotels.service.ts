@@ -1,6 +1,11 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { HotelEntity } from '../entities/hotel.orm-entity';
 import { CreateHotelDto, UpdateHotelDto, ImportResult } from '../dtos';
 import { merge } from 'lodash';
@@ -62,22 +67,36 @@ export class HotelsService {
       }
     });
 
-    await Promise.all(mappingPromises);
-    await this.hotelsRepository.insert(hotelsToInsert);
+    try {
+      await Promise.all(mappingPromises);
+      await this.hotelsRepository.insert(hotelsToInsert);
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        error.message.includes('Duplicate')
+      ) {
+        throw new ConflictException('Duplicate hotel name');
+      }
+      throw new InternalServerErrorException('Failed to import hotels');
+    }
     return importResult;
   }
 
-  async findOne(id: number): Promise<HotelEntity | null> {
-    return await this.hotelsRepository.findOne({ where: { id } });
+  async findOne(id: number): Promise<HotelEntity> {
+    const hotel = await this.hotelsRepository.findOne({ where: { id } });
+    if (!hotel) {
+      throw new NotFoundException(`Hotel with ID ${id} not found`);
+    }
+    return hotel;
   }
 
-  async update(id: number, updateHotelDto: UpdateHotelDto): Promise<boolean> {
+  async update(
+    id: number,
+    updateHotelDto: UpdateHotelDto,
+  ): Promise<HotelEntity> {
     const hotel = await this.findOne(id);
-    if (!hotel) {
-      return null;
-    }
     const updatedHotel = merge(hotel, updateHotelDto);
-    const result = await this.hotelsRepository.update({ id }, updatedHotel);
-    return result.affected === 1;
+    await this.hotelsRepository.update(hotel, updatedHotel);
+    return updatedHotel;
   }
 }

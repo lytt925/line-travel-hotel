@@ -8,6 +8,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiQuery,
+  ApiConflictResponse,
 } from '@nestjs/swagger';
 import {
   CreateResponseDto,
@@ -108,6 +109,14 @@ export function ApiImportFromCsv() {
         statusCode: 400,
         message: 'Invalid CSV file',
         error: 'Bad Request',
+      },
+    }),
+    ApiConflictResponse({
+      description: 'Duplicate hotel data',
+      example: {
+        message: 'Duplicate hotel name',
+        error: 'Conflict',
+        statusCode: 409,
       },
     }),
   );

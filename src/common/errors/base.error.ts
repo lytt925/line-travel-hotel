@@ -40,3 +40,22 @@ export class BadRequestException implements HttpExceptionBody {
   })
   error?: HttpExceptionBody['error'];
 }
+
+export class ConflictException implements HttpExceptionBody {
+  @ApiProperty({
+    description: 'Error message',
+  })
+  message: HttpExceptionBody['message'];
+
+  @ApiProperty({
+    description: StatusCodes.CONFLICT.toString(),
+    example: StatusCodes.CONFLICT,
+  })
+  statusCode: HttpExceptionBody['statusCode'];
+
+  @ApiProperty({
+    description: ReasonPhrases.CONFLICT,
+    example: ReasonPhrases.CONFLICT,
+  })
+  error?: HttpExceptionBody['error'];
+}
