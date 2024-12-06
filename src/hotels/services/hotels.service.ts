@@ -35,7 +35,7 @@ export class HotelsService {
       where: { name: createHotelDto.name },
     });
     if (existingHotel) {
-      throw new ConflictException('Hotel already exists');
+      throw new ConflictException('Hotel name already exists');
     }
 
     const hotel = this.hotelsRepository.create(createHotelDto);
