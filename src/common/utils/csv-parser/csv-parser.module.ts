@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CsvParserService } from './csv-parser.service';
+import { CsvParserService } from './';
 
 @Module({
   providers: [CsvParserService],

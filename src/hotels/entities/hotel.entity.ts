@@ -1,42 +1,64 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
-@Entity('hotels')
 export class Hotel {
-  @PrimaryGeneratedColumn()
+  @ApiProperty({
+    description: 'Hotel ID',
+    example: 1,
+  })
   id: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @ApiProperty({
+    description: 'Hotel name',
+    example: '礁溪老爺酒店',
+  })
   name: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @ApiProperty({
+    description: 'Hotel website link',
+    required: false,
+    example: 'https://hotel.com',
+  })
   webLink?: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @ApiProperty({
+    description: 'Hotel address',
+    example: '五峰路693號',
+  })
   address: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @ApiProperty({
+    description: 'Hotel city',
+    example: '宜蘭',
+  })
   city: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @ApiProperty({
+    description: 'Hotel country',
+    example: '台灣',
+  })
   country: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @ApiProperty({
+    description: 'Hotel email',
+    example: 'hotel@gmail.com',
+  })
   email: string;
 
-  @Column({ type: 'boolean', nullable: false })
+  @ApiProperty({
+    description: 'Hotel open status',
+    example: true,
+  })
   isOpen: boolean;
 
-  @Column({
-    type: 'decimal',
-    precision: 9,
-    scale: 6,
+  @ApiProperty({
+    description: 'Hotel latitude',
+    example: '24.671',
   })
   latitude: string;
 
-  @Column({
-    type: 'decimal',
-    precision: 9,
-    scale: 6,
+  @ApiProperty({
+    description: 'Hotel longitude',
+    example: '121.776',
   })
   longitude: string;
 }

@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HotelsController } from './hotels.controller';
-import { HotelsService } from './hotels.service';
-import { ResponsePresenter } from '../common/presenters/response.presenter';
+import { HotelsController } from './';
+import { HotelsService } from '../services';
+import { ResponsePresenter } from '../../common/presenters/response.presenter';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { Hotel } from './entities/hotel.entity';
-import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
-import { ImportResult } from './types/hotel.service.type';
+import { Hotel } from '../entities/hotel.entity';
+import { CreateHotelDto, ImportResult } from '../dtos';
 import { CsvError } from 'csv-parse';
 
 describe('HotelsController', () => {

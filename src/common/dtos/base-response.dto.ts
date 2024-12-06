@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ApiResponse } from '../types/responses.type';
 
-export class BaseResponseDto<T> implements ApiResponse<T> {
+export class BaseResponseDto {
   @ApiProperty({
     description: 'Response message',
   })
@@ -14,6 +13,7 @@ export class BaseResponseDto<T> implements ApiResponse<T> {
 
   @ApiProperty({
     description: 'Response data',
+    required: false,
   })
-  data?: T;
+  data?: unknown;
 }

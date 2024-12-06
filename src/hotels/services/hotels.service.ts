@@ -1,27 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Hotel } from './entities/hotel.entity';
-import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
-import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
+import { HotelEntity } from '../entities/hotel.orm-entity';
+import { Hotel } from '../entities/hotel.entity';
+import { CreateHotelDto, UpdateHotelDto, ImportResult } from '../dtos';
 import { merge } from 'lodash';
-import { CsvParserService } from '../common/utils/csv-parser/csv-parser.service';
-import { mapRecordToCreateHotelDto } from './mappers/dto.mapper';
+import { CsvParserService } from '../../common/utils/csv-parser/csv-parser.service';
+import { mapRecordToCreateHotelDto } from '../mappers/dto.mapper';
 import { ValidationError } from 'class-validator';
-import { ImportResult } from './types/hotel.service.type';
 
 @Injectable()
 export class HotelsService {
   constructor(
-    @InjectRepository(Hotel)
-    private hotelsRepository: Repository<Hotel>,
+    @InjectRepository(HotelEntity)
+    private hotelsRepository: Repository<HotelEntity>,
     private csvParser: CsvParserService,
   ) {}
 
   async findAll(page: number): Promise<Hotel[]> {
     const take = 10;
     const skip = (page - 1) * take;
-
     return await this.hotelsRepository.find({
       skip,
       take,

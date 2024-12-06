@@ -16,12 +16,11 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { HotelsService } from './hotels.service';
+import { HotelsService } from '../services/hotels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
-import { UpdateHotelDto } from './dtos/requests/update-hotel.dto';
+import { CreateHotelDto, UpdateHotelDto } from '../dtos';
 import { CsvError } from 'csv-parse';
-import { ResponsePresenter } from '../common/presenters/response.presenter';
+import { ResponsePresenter } from '../../common/presenters/response.presenter';
 import { ApiTags } from '@nestjs/swagger';
 import {
   ApiCreate,
@@ -29,7 +28,7 @@ import {
   ApiGetById,
   ApiImportFromCsv,
   ApiUpdate,
-} from './decorators/docs.decorators';
+} from '../decorators/docs.decorators';
 
 @ApiTags('hotels')
 @Controller({

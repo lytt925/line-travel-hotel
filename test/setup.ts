@@ -40,7 +40,7 @@ export const getDatasource = async (): Promise<DataSource> => {
     database: process.env.MYSQL_DATABASE,
     username: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    entities: ['src/**/*.entity.ts'],
+    entities: ['src/**/*.orm-entity.ts'],
     migrations: ['test/seeds/*.ts'],
     synchronize: true,
     logging: false,

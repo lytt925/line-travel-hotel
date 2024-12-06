@@ -5,7 +5,6 @@ import { ReasonPhrases, StatusCodes } from 'http-status-codes';
 export class NotFoundException implements HttpExceptionBody {
   @ApiProperty({
     description: 'Error message',
-    example: 'Hotel with ID {id} not found',
   })
   message: HttpExceptionBody['message'];
 
@@ -25,7 +24,6 @@ export class NotFoundException implements HttpExceptionBody {
 export class BadRequestException implements HttpExceptionBody {
   @ApiProperty({
     description: 'Error message',
-    example: 'Invalid hotel data',
     oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
   })
   message: HttpExceptionBody['message'];

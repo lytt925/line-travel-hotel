@@ -7,20 +7,21 @@ import {
   ApiOperation,
   ApiBody,
   ApiConsumes,
+  ApiQuery,
 } from '@nestjs/swagger';
 import {
   CreateResponseDto,
   GetAllResponseDto,
   GetByIdResponseDto,
-  ImportResponseDto,
   UpdateResponseDto,
-} from '../dtos/responses/responses.dto';
+  CreateHotelDto,
+  UpdateHotelDto,
+  ImportResponseDto,
+} from '../dtos';
 import {
   BadRequestException,
   NotFoundException,
-} from '../../common/docs/base.error';
-import { UpdateHotelDto } from '../dtos/requests/update-hotel.dto';
-import { CreateHotelDto } from '../dtos/requests/create-hotel.dto';
+} from '../../common/errors/base.error';
 
 export function ApiGetById() {
   return applyDecorators(
@@ -28,26 +29,15 @@ export function ApiGetById() {
     ApiOkResponse({
       description: 'Hotel found successfully',
       type: GetByIdResponseDto,
-      example: {
-        statusCode: 200,
-        message: 'Hotel found successfully',
-        data: {
-          id: 1,
-          name: '礁溪老爺酒店',
-          webLink: null,
-          address: '五峰路69號',
-          country: '台灣',
-          city: '宜蘭',
-          email: 'hotel@hotel.com',
-          isOpen: true,
-          longitude: '121.776',
-          latitude: '24.671',
-        },
-      },
     }),
     ApiNotFoundResponse({
       description: 'Hotel with ID {id} not found',
       type: NotFoundException,
+      example: {
+        statusCode: 404,
+        message: 'Hotel with ID 1 not found',
+        error: 'Not Found',
+      },
     }),
   );
 }
@@ -55,36 +45,15 @@ export function ApiGetById() {
 export function ApiGetAll() {
   return applyDecorators(
     ApiOperation({ summary: 'Get all hotels' }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      type: Number,
+      example: 1,
+    }),
     ApiOkResponse({
       description: 'Hotels found successfully',
       type: GetAllResponseDto,
-      example: {
-        statusCode: 200,
-        message: 'Hotels found successfully',
-        data: [
-          {
-            id: 3,
-            name: '礁溪老爺酒店2',
-            webLink: null,
-            address: '五峰路69號',
-            country: '台灣',
-            city: '宜蘭',
-            email: 'hotel2@hotel.com',
-            isOpen: true,
-            longitude: '121.776',
-            latitude: '24.671',
-          },
-          {
-            id: 4,
-            name: '礁溪老爺酒店',
-            webLink: 'https://hotel.com',
-            address: '五峰路69號',
-            email: 'hotel3@gmail.com',
-            status: 1,
-            coordinate: '24.671,121.776',
-          },
-        ],
-      },
     }),
   );
 }
@@ -99,26 +68,15 @@ export function ApiCreate() {
     ApiCreatedResponse({
       description: 'Hotel created successfully',
       type: CreateResponseDto,
-      example: {
-        statusCode: 201,
-        message: 'Hotel created successfully',
-        data: {
-          name: '礁溪老爺酒店',
-          webLink: 'https://hotel.com',
-          address: '五峰路69號',
-          city: '宜蘭',
-          country: '台灣',
-          email: 'hotel@hotel.com',
-          isOpen: true,
-          latitude: '21.671',
-          longitude: '121.776',
-          id: 1,
-        },
-      },
     }),
     ApiBadRequestResponse({
       description: 'Invalid hotel data',
       type: BadRequestException,
+      example: {
+        message: ['email must be an email'],
+        error: 'Bad Request',
+        statusCode: 400,
+      },
     }),
   );
 }
@@ -146,6 +104,11 @@ export function ApiImportFromCsv() {
     ApiBadRequestResponse({
       description: 'Invalid CSV file',
       type: BadRequestException,
+      example: {
+        statusCode: 400,
+        message: 'Invalid CSV file',
+        error: 'Bad Request',
+      },
     }),
   );
 }
@@ -160,27 +123,24 @@ export function ApiUpdate() {
     ApiOkResponse({
       description: 'Hotel updated successfully',
       type: UpdateResponseDto,
-      example: {
-        statusCode: 200,
-        message: 'Hotel updated successfully',
-        data: {
-          id: 4,
-          name: '礁溪老爺酒店',
-          webLink: 'https://hotel.com',
-          address: '五峰路69號,宜蘭,台灣',
-          email: 'ytli.1tw@gmail.com',
-          status: 1,
-          coordinate: '35,121.776',
-        },
-      },
     }),
     ApiNotFoundResponse({
       description: 'Hotel with ID {id} not found',
       type: NotFoundException,
+      example: {
+        statusCode: 404,
+        message: 'Hotel with ID 1 not found',
+        error: 'Not Found',
+      },
     }),
     ApiBadRequestResponse({
       description: 'Invalid hotel data',
       type: BadRequestException,
+      example: {
+        message: ['email must be an email'],
+        error: 'Bad Request',
+        statusCode: 400,
+      },
     }),
   );
 }

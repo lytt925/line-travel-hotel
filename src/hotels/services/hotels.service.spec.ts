@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HotelsService } from './hotels.service';
-import { CsvParserService } from '../common/utils/csv-parser/csv-parser.service';
+import { HotelsService } from './';
+import { CsvParserService } from '../../common/utils/csv-parser/csv-parser.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Hotel } from './entities/hotel.entity';
+import { Hotel } from '../entities/hotel.entity';
 import { Repository } from 'typeorm';
-import { CreateHotelDto } from './dtos/requests/create-hotel.dto';
+import { CreateHotelDto } from '../dtos';
+import { HotelEntity } from '../entities/hotel.orm-entity';
 
 const mockCreateHotelDto: CreateHotelDto = {
   name: 'Mock Hotel',
@@ -39,7 +40,7 @@ const mockCsvParserService = () => ({
 
 describe('HotelsService', () => {
   let service: HotelsService;
-  let hotelsRepository: jest.Mocked<Repository<Hotel>>;
+  let hotelsRepository: jest.Mocked<Repository<HotelEntity>>;
   let csvParser: jest.Mocked<CsvParserService>;
 
   beforeEach(async () => {
@@ -47,7 +48,7 @@ describe('HotelsService', () => {
       providers: [
         HotelsService,
         {
-          provide: getRepositoryToken(Hotel),
+          provide: getRepositoryToken(HotelEntity),
           useValue: mockHotelsRepository(),
         },
         {
@@ -58,7 +59,7 @@ describe('HotelsService', () => {
     }).compile();
 
     service = module.get<HotelsService>(HotelsService);
-    hotelsRepository = module.get(getRepositoryToken(Hotel));
+    hotelsRepository = module.get(getRepositoryToken(HotelEntity));
     csvParser = module.get(CsvParserService);
   });
 

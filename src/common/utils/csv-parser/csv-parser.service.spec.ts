@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CsvParserService } from './csv-parser.service';
+import { CsvParserService } from './';
 
 describe('CsvParserService', () => {
   let service: CsvParserService;
