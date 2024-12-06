@@ -20,7 +20,6 @@ async function bootstrap() {
     .setTitle('Line Travel Hotels API')
     .setDescription('The Line Travel Hotels API description')
     .setVersion('1.0')
-    .addTag('hotels')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

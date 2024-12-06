@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { HttpLoggerMiddleware } from './common/middlewares/logger.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,6 +15,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     }),
     DatabaseModule,
     HotelsModule,
+    UsersModule,
   ],
   providers: [
     {
