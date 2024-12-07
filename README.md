@@ -6,7 +6,7 @@ API docs: https://demo.ytli.tw/docs
 
 #### Hotels
 - Get hotel by id
-- Get all hotel
+- Get all hotel with pagination
 - Create hotel
 - Update hotel
 - Batch insert hotel with csv file
