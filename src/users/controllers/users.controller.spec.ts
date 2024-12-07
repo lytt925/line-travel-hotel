@@ -3,6 +3,8 @@ import { UsersController } from './';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
 import { UsersService } from '../services';
 import { CreateUserDto, UserPublicDto } from '../dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 const mockUsersService = () => ({
   create: jest.fn(),
@@ -22,6 +24,16 @@ describe('UsersController', () => {
         {
           provide: UsersService,
           useValue: mockUsersService(),
+        },
+        {
+          provide: JwtService,
+          useValue: jest.fn(),
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(),
+          },
         },
         ResponsePresenter,
       ],

@@ -32,7 +32,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     description: 'The password of the user',
-    example: '123456',
+    example: 'Password123',
   })
   @IsStrongPassword({
     minLength: 8,

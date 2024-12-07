@@ -17,9 +17,9 @@ export class UsersService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async isEmailExists(email: string): Promise<boolean> {
+  async findOneByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({ email });
-    return !!user;
+    return user;
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
@@ -57,8 +57,8 @@ export class UsersService {
     }
 
     if (updateUserDto.email) {
-      const isEmailExists = await this.isEmailExists(updateUserDto.email);
-      if (isEmailExists) {
+      const userGetByEmail = await this.findOneByEmail(updateUserDto.email);
+      if (userGetByEmail) {
         throw new ConflictException('Email already exists');
       }
     }

@@ -8,11 +8,13 @@ import {
   UsePipes,
   ValidationPipe,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../services';
 import { CreateUserDto, UpdateUserDto, UserPublicDto } from '../dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
+import { AuthGuard } from '../../auth/guards';
 
 @ApiTags('users')
 @Controller({
@@ -51,6 +53,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
