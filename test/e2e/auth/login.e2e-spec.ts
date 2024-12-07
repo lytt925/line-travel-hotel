@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { userSeedData } from '../../seeds/data/users';
 import { setupTestApp, teardownTestApp } from './setup';
 
 let app: INestApplication;
@@ -14,9 +13,19 @@ describe('POST /api/v1/auth/login', () => {
     await teardownTestApp();
   });
 
-  const loginUser = userSeedData[0];
+  const loginUser = {
+    email: 'login@gmail.com',
+    password: 'Password1234',
+    firstName: 'login',
+    lastName: 'test',
+  };
 
   it('should return 200 and new access token', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/users')
+      .send(loginUser)
+      .expect(201);
+
     const response = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email: loginUser.email, password: loginUser.password })
