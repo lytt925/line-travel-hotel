@@ -22,7 +22,7 @@ export class UsersService {
     return user;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async create(createUserDto: CreateUserDto): Promise<UserPublicDto> {
     const existingUser = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
@@ -39,7 +39,7 @@ export class UsersService {
     return mapUserEntityToPublicDto(savedUser);
   }
 
-  async findOne(id: number): Promise<UserEntity> {
+  async findOne(id: number): Promise<UserPublicDto> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException('User not found');

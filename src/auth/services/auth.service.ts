@@ -27,7 +27,7 @@ export class AuthService {
 
     const isValid = await argon2.verify(user.password, password);
     if (!isValid) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Wrong password');
     }
     const payload = {
       userId: user.id,
@@ -36,6 +36,12 @@ export class AuthService {
       firstName: user.firstName,
     };
     return {
+      user: {
+        id: user.id,
+        email: user.email,
+        lastName: user.lastName,
+        firstName: user.firstName,
+      },
       access_token: await this.jwtService.signAsync(payload, {
         expiresIn: JWT_EXPIRATION,
         secret: this.JWT_SECRET,
@@ -57,6 +63,9 @@ export class AuthService {
       lastName: payload.lastName,
       firstName: payload.firstName,
     };
-    return await this.jwtService.signAsync(newPayload);
+    return await this.jwtService.signAsync(newPayload, {
+      expiresIn: JWT_EXPIRATION,
+      secret: this.JWT_SECRET,
+    });
   }
 }

@@ -5,6 +5,8 @@ import { UsersService } from '../services';
 import { CreateUserDto, UserPublicDto } from '../dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
+import { ForbiddenException } from '@nestjs/common';
 
 const mockUsersService = () => ({
   create: jest.fn(),
@@ -121,12 +123,28 @@ describe('UsersController', () => {
     };
     it('should update a user', async () => {
       usersService.update.mockResolvedValue(mockUserPublic);
-      const result = await controller.update(1, mockUpdateUserDto);
+      const request = {
+        user: {
+          userId: 1,
+        },
+      } as unknown as Request;
+      const result = await controller.update(1, mockUpdateUserDto, request);
       expect(usersService.update).toHaveBeenCalledWith(1, mockUpdateUserDto);
       expect(result).toEqual({
         message: 'User updated successfully',
         data: mockUserPublic,
       });
+    });
+
+    it('should return 403 if user is not the owner', async () => {
+      const request = {
+        user: {
+          userId: 2,
+        },
+      } as unknown as Request;
+      expect(controller.update(1, mockUpdateUserDto, request)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

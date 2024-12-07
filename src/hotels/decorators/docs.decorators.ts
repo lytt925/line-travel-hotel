@@ -19,10 +19,7 @@ import {
   UpdateHotelDto,
   ImportResponseDto,
 } from '../dtos';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '../../common/errors/base.error';
+import { BadRequestException, NotFoundException } from '../../common/errors';
 
 export function ApiGetById() {
   return applyDecorators(

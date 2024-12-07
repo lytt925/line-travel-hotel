@@ -11,11 +11,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ApiTags } from '@nestjs/swagger';
-import { SignInDto } from '../dtos/signIn.dto';
+import { SignInDto } from '../dtos/requests/signIn.dto';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
 import { TokenExpiredError } from '@nestjs/jwt';
+import { ApiLogin, ApiRefreshToken } from '../decorators/docs.decorator';
 
 @ApiTags('auth')
 @Controller({
@@ -37,11 +38,13 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(200)
+  @ApiLogin()
   async signIn(
     @Res({ passthrough: true }) res: Response,
     @Body() signInDto: SignInDto,
   ) {
-    const { access_token, refresh_token } = await this.authService.signIn(
+    const { user, access_token, refresh_token } = await this.authService.signIn(
       signInDto.email,
       signInDto.password,
     );
@@ -54,11 +57,13 @@ export class AuthController {
 
     return this.responseRepresenter.formatSuccessResponse(
       'Logged in successfully',
-      { access_token },
+      { access_token, user },
     );
   }
+
   @Post('refresh')
   @HttpCode(200)
+  @ApiRefreshToken()
   async refreshAccessToken(@Req() req: Request) {
     const refresh_token = req.cookies['refresh_token'];
     if (!refresh_token) {

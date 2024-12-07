@@ -35,6 +35,10 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
@@ -60,6 +64,12 @@ describe('AuthService', () => {
       expect(result).toEqual({
         access_token: 'accessToken',
         refresh_token: 'refreshToken',
+        user: {
+          id: mockUser.id,
+          email: mockUser.email,
+          firstName: mockUser.firstName,
+          lastName: mockUser.lastName,
+        },
       });
       expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith(
         'test@example.com',
@@ -104,7 +114,10 @@ describe('AuthService', () => {
       expect(mockJwtService.verify).toHaveBeenCalledWith('refreshToken', {
         secret: 'mock_refresh_secret',
       });
-      expect(mockJwtService.signAsync).toHaveBeenCalledWith(mockPayload);
+      expect(mockJwtService.signAsync).toHaveBeenCalledWith(mockPayload, {
+        expiresIn: expect.any(String),
+        secret: expect.any(String),
+      });
     });
 
     it('should throw an error if refresh token is invalid', async () => {
