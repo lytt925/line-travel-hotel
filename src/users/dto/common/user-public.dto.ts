@@ -1,8 +1,3 @@
-import { User } from 'src/users/entities/user.entity';
-
-export class UserPublicDto implements User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+import { OmitType } from '@nestjs/swagger';
+import { User } from '../../entities/user.entity';
+export class UserPublicDto extends OmitType(User, ['password'] as const) {}

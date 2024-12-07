@@ -5,8 +5,6 @@ import {
   Post,
   UsePipes,
   ValidationPipe,
-  Get,
-  UseGuards,
   Res,
   Req,
   UnauthorizedException,
@@ -14,11 +12,10 @@ import {
 import { AuthService } from '../services/auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SignInDto } from '../dtos/signIn.dto';
-import { AuthGuard } from '../guards/auth.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ResponsePresenter } from '../../common/presenters/response.presenter';
-import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
+import { TokenExpiredError } from '@nestjs/jwt';
 
 @ApiTags('auth')
 @Controller({
@@ -65,7 +62,6 @@ export class AuthController {
   async refreshAccessToken(@Req() req: Request) {
     const refresh_token = req.cookies['refresh_token'];
     if (!refresh_token) {
-      console.log('No refresh token provided');
       throw new UnauthorizedException('No refresh token provided');
     }
 
@@ -80,16 +76,8 @@ export class AuthController {
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException('Refresh token expired');
-      } else if (error instanceof JsonWebTokenError) {
-        throw new UnauthorizedException('Invalid refresh token');
       }
-      throw error;
+      throw new UnauthorizedException('Invalid refresh token');
     }
-  }
-
-  @UseGuards(AuthGuard)
-  @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
   }
 }

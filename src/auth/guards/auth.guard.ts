@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService, TokenExpiredError, JsonWebTokenError } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { Request } from 'express';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('No token provided');
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -29,15 +29,13 @@ export class AuthGuard implements CanActivate {
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException('Token expired');
-      } else if (error instanceof JsonWebTokenError) {
-        throw new UnauthorizedException('Invalid token');
       }
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }
