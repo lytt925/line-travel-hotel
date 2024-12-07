@@ -3,6 +3,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -37,7 +38,7 @@ export function ApiGetById() {
 export function ApiCreateUser() {
   return applyDecorators(
     ApiOperation({ summary: 'Create a user' }),
-    ApiOkResponse({
+    ApiCreatedResponse({
       description: 'User created successfully',
       type: PublicUserResDto,
     }),
