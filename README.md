@@ -2,6 +2,21 @@
 Slide: https://docs.google.com/presentation/d/1EKCk1ftGjdvLh7Fq7_1O8BQgpnX-XrR7q0IQ3URR0Fw/edit?usp=sharing  
 API docs: https://demo.ytli.tw/docs
 
+## How to  run
+#### For development
+1. add `.env.development` to root folder, please refer to `.env.example`
+2. start the local db using docker container for development   
+  - `docker compose --profile development --env-file .env.development up -d`
+3. install dependencies
+  - `npm i`
+4. start the app
+  - `npm run start:dev`
+   
+####  For production
+1. add `.env.production` to root folder, please refer to `.env.example`
+2. start the app
+  - `docker compose --profile production --env-file .env.production up -d`
+
 ## App Feature
 
 #### Hotels
